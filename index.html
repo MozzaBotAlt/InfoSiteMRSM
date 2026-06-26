@@ -8,23 +8,34 @@
 </head>
 <body class="display-page">
   <div class="tv-shell">
-    <div class="screen-top">
-      <div class="brand">Info TV</div>
+    <header class="screen-top">
+      <div class="brand-block">
+        <div class="brand-badge">MRSM</div>
+        <div>
+          <div class="brand">Info TV</div>
+          <div class="brand-subtitle">Live updates</div>
+        </div>
+      </div>
       <div id="clock" class="clock" aria-live="polite"></div>
-    </div>
+    </header>
 
-    <div class="slide-container" id="slide-container">
+    <main class="slide-container" id="slide-container">
       <div class="slide-media" id="slide-media"></div>
       <div class="slide-panel">
-        <div class="slide-title" id="slide-title">Loading content...</div>
-        <div class="slide-message" id="slide-message">Open admin.html to configure slides and media.</div>
-        <div class="slide-caption" id="slide-caption"></div>
+        <p class="eyebrow">Now showing</p>
+        <h1 class="slide-title" id="slide-title">Loading content...</h1>
+        <p class="slide-message" id="slide-message">Open admin.html to configure slides and media.</p>
+        <div class="slide-meta-row">
+          <div class="slide-caption" id="slide-caption"></div>
+        </div>
       </div>
-    </div>
+    </main>
 
-    <div class="footer-line">
-      <div class="footer-label">Powered by InfoSiteMRSM</div>
-      <div class="footer-note">Auto-rotating content for TV display. Configure slides on <span class="admin-link">admin.html</span>.</div>
+    <div class="news-ticker" aria-live="polite">
+      <span class="ticker-label">Latest</span>
+      <div class="ticker-track">
+        <div class="ticker-content" id="ticker-content"></div>
+      </div>
     </div>
   </div>
 

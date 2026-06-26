@@ -1,4 +1,5 @@
 const storageKey = 'infoTvSlidesMRSM';
+const dataFileName = 'data.json';
 
 const defaultSlides = [
   {
@@ -19,28 +20,89 @@ const defaultSlides = [
   }
 ];
 
-function loadSlides() {
+function normalizeSlide(slide = {}) {
+  return {
+    title: slide.title || '',
+    message: slide.message || '',
+    imageUrl: slide.imageUrl || '',
+    videoUrl: slide.videoUrl || '',
+    duration: Number(slide.duration) || 12,
+    caption: slide.caption || ''
+  };
+}
+
+async function loadSlidesFromDataFile() {
   try {
-    const saved = localStorage.getItem(storageKey);
-    const slides = saved ? JSON.parse(saved) : null;
-    if (!Array.isArray(slides) || !slides.length) {
-      return defaultSlides.slice();
+    const response = await fetch(dataFileName, { cache: 'no-store' });
+    if (!response.ok) {
+      throw new Error(`Unable to load ${dataFileName}`);
     }
-    return slides.map((slide) => ({
-      title: slide.title || '',
-      message: slide.message || '',
-      imageUrl: slide.imageUrl || '',
-      videoUrl: slide.videoUrl || '',
-      duration: Number(slide.duration) || 12,
-      caption: slide.caption || ''
-    }));
+
+    const parsed = await response.json();
+    if (!Array.isArray(parsed) || !parsed.length) {
+      return null;
+    }
+
+    return parsed.map(normalizeSlide);
   } catch (error) {
-    return defaultSlides.slice();
+    return null;
   }
 }
 
+async function loadSlides() {
+  try {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) {
+        return parsed.map(normalizeSlide);
+      }
+    }
+  } catch (error) {
+    console.warn('Could not load slides from local storage.', error);
+  }
+
+  const fromDataFile = await loadSlidesFromDataFile();
+  return fromDataFile || defaultSlides.slice();
+}
+
 function saveSlides(slides) {
-  localStorage.setItem(storageKey, JSON.stringify(slides));
+  const normalizedSlides = slides.map(normalizeSlide);
+  localStorage.setItem(storageKey, JSON.stringify(normalizedSlides));
+  void persistToDataFile(normalizedSlides);
+  return normalizedSlides;
+}
+
+async function persistToDataFile(slides) {
+  const payload = JSON.stringify(slides, null, 2);
+
+  try {
+    const response = await fetch(dataFileName, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: payload
+    });
+
+    if (response.ok) {
+      return;
+    }
+  } catch (error) {
+    console.warn('Remote save was not available. Falling back to download.', error);
+  }
+
+  try {
+    const blob = new Blob([payload], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = dataFileName;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  } catch (error) {
+    console.warn('Unable to download data file.', error);
+  }
 }
 
 function formatClock(date) {
@@ -50,14 +112,15 @@ function formatClock(date) {
   });
 }
 
-function initDisplayPage() {
+async function initDisplayPage() {
   const slideMedia = document.getElementById('slide-media');
   const slideTitle = document.getElementById('slide-title');
   const slideMessage = document.getElementById('slide-message');
   const slideCaption = document.getElementById('slide-caption');
+  const tickerContent = document.getElementById('ticker-content');
   const clock = document.getElementById('clock');
 
-  let slides = loadSlides();
+  let slides = await loadSlides();
   let currentIndex = 0;
   let timerId = null;
 
@@ -65,10 +128,21 @@ function initDisplayPage() {
     clock.textContent = formatClock(new Date());
   }
 
+  function updateTicker(slide) {
+    const parts = [
+      slide.title || 'Information',
+      slide.message || '',
+      slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`
+    ].filter(Boolean);
+    const text = `${parts.join(' • ')} • ${parts.join(' • ')}`;
+    tickerContent.innerHTML = `<span>${text}</span><span>${text}</span>`;
+  }
+
   function renderSlide(slide) {
     slideTitle.textContent = slide.title || 'Information';
     slideMessage.textContent = slide.message || 'Open admin.html to edit the slide content.';
     slideCaption.textContent = slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`;
+    updateTicker(slide);
     slideMedia.innerHTML = '';
 
     if (slide.videoUrl) {
@@ -116,8 +190,8 @@ function initDisplayPage() {
   showCurrent();
   window.setInterval(updateClock, 60_000);
 
-  window.addEventListener('storage', () => {
-    slides = loadSlides();
+  window.addEventListener('storage', async () => {
+    slides = await loadSlides();
     currentIndex = 0;
     if (timerId) {
       window.clearTimeout(timerId);
@@ -126,7 +200,7 @@ function initDisplayPage() {
   });
 }
 
-function initAdminPage() {
+async function initAdminPage() {
   const form = document.getElementById('slide-form');
   const slideList = document.getElementById('slide-list');
   const exportBtn = document.getElementById('export-btn');
@@ -139,7 +213,7 @@ function initAdminPage() {
   const videoInput = document.getElementById('slide-video');
   const durationInput = document.getElementById('slide-duration');
 
-  let slides = loadSlides().length ? loadSlides() : [];
+  let slides = [];
   let editIndex = null;
 
   function updateSlideList() {
@@ -184,7 +258,7 @@ function initAdminPage() {
   }
 
   function persistSlides() {
-    saveSlides(slides);
+    slides = saveSlides(slides);
     updateSlideList();
   }
 
@@ -215,14 +289,7 @@ function initAdminPage() {
       if (!Array.isArray(parsed)) {
         throw new Error('JSON must be an array of slides');
       }
-      slides = parsed.map((slide) => ({
-        title: slide.title || '',
-        message: slide.message || '',
-        imageUrl: slide.imageUrl || '',
-        videoUrl: slide.videoUrl || '',
-        duration: Number(slide.duration) || 12,
-        caption: slide.caption || ''
-      }));
+      slides = parsed.map(normalizeSlide);
       persistSlides();
       importJson.value = '';
       alert('Slides imported successfully.');
@@ -258,14 +325,15 @@ function initAdminPage() {
   importBtn.addEventListener('click', importFromJson);
   clearBtn.addEventListener('click', clearForm);
 
+  slides = await loadSlides();
   updateSlideList();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   if (document.body.classList.contains('display-page')) {
-    initDisplayPage();
+    void initDisplayPage();
   }
   if (document.body.classList.contains('admin-page')) {
-    initAdminPage();
+    void initAdminPage();
   }
 });

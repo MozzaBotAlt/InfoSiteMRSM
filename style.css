@@ -6,7 +6,7 @@
   --accent-soft: #2f7fd3;
   --text: #eff7ff;
   --muted: #9bb3cc;
-  --shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+  --shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
 }
 
 * {
@@ -19,7 +19,7 @@ body {
   min-height: 100%;
   font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text);
-  background: radial-gradient(circle at top, rgba(108, 195, 255, 0.14), transparent 22%), linear-gradient(180deg, #041328 0%, #020814 58%, #000 100%);
+  background: radial-gradient(circle at top, rgba(108, 195, 255, 0.15), transparent 24%), linear-gradient(180deg, #041328 0%, #020814 58%, #000 100%);
 }
 
 button,
@@ -39,44 +39,75 @@ body.display-page {
 }
 
 .tv-shell {
-  width: 100%;
+  width: min(1400px, 100%);
   min-height: 100vh;
-  padding: clamp(1.5rem, 2vw, 3rem);
+  margin: 0 auto;
+  padding: clamp(1rem, 2vw, 1.4rem);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 1.5rem;
+  gap: 0.9rem;
 }
 
 .screen-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
+  padding: 0.9rem 1rem;
+  border-radius: 1.2rem;
+  background: rgba(2, 8, 20, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+}
+
+.brand-block {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.8rem;
+  height: 2.8rem;
+  border-radius: 0.9rem;
+  background: linear-gradient(135deg, var(--accent), var(--accent-soft));
+  color: #02101d;
+  font-weight: 800;
+  letter-spacing: 0.08em;
 }
 
 .brand {
-  font-size: clamp(1.25rem, 2vw, 2.3rem);
+  font-size: 1.05rem;
   font-weight: 800;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--accent);
 }
 
+.brand-subtitle {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .clock {
-  font-size: clamp(1.35rem, 2.3vw, 2.7rem);
-  letter-spacing: 0.05em;
+  font-size: clamp(1.15rem, 2.2vw, 1.6rem);
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--text);
 }
 
 .slide-container {
   position: relative;
-  display: grid;
-  min-height: calc(100vh - 18rem);
-  border-radius: 2rem;
+  flex: 1;
+  min-height: calc(100vh - 13rem);
+  border-radius: 1.5rem;
   overflow: hidden;
   background: var(--surface);
   box-shadow: var(--shadow);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .slide-media {
@@ -96,7 +127,7 @@ body.display-page {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8) 60%);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.78) 70%);
   pointer-events: none;
 }
 
@@ -106,45 +137,100 @@ body.display-page {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  gap: 1rem;
-  padding: clamp(2rem, 3vw, 3rem);
+  gap: 0.6rem;
+  width: min(100%, 760px);
+  height: 100%;
+  padding: clamp(1.2rem, 2.4vw, 2rem);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: 0.72rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.72);
 }
 
 .slide-title {
-  font-size: clamp(2rem, 4vw, 4.6rem);
-  line-height: 1.02;
+  margin: 0;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  line-height: 1.08;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.03em;
+  text-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
 }
 
 .slide-message {
-  font-size: clamp(1rem, 1.8vw, 1.7rem);
-  max-width: 72rem;
-  line-height: 1.55;
+  margin: 0;
+  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  max-width: 56rem;
+  line-height: 1.5;
   color: rgba(239, 247, 255, 0.93);
 }
 
-.slide-caption {
-  font-size: 1rem;
-  color: var(--muted);
-}
-
-.footer-line {
+.slide-meta-row {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   flex-wrap: wrap;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
-  background: rgba(2, 8, 20, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  font-size: clamp(0.95rem, 1vw, 1rem);
+  gap: 0.55rem;
+  align-items: center;
+  margin-top: 0.2rem;
 }
 
-.admin-link {
+.slide-caption {
+  font-size: 0.9rem;
+  color: var(--muted);
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(2, 8, 20, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.news-ticker {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(2, 8, 20, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.ticker-label {
+  flex-shrink: 0;
+  font-size: 0.74rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  font-weight: 700;
   color: var(--accent);
-  font-weight: 600;
+}
+
+.ticker-track {
+  overflow: hidden;
+  flex: 1;
+}
+
+.ticker-content {
+  display: flex;
+  width: max-content;
+  animation: marquee 20s linear infinite;
+}
+
+.ticker-content span {
+  padding-right: 2.4rem;
+  font-size: 0.92rem;
+  color: var(--text);
+  opacity: 0.95;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
 }
 
 .admin-page {
@@ -163,14 +249,6 @@ body.display-page {
   gap: 1.5rem;
   align-items: flex-start;
   margin-bottom: 2rem;
-}
-
-.eyebrow {
-  margin: 0 0 0.75rem;
-  font-size: 0.78rem;
-  letter-spacing: 0.34em;
-  text-transform: uppercase;
-  color: var(--accent);
 }
 
 h1 {
@@ -332,6 +410,7 @@ textarea {
   .form-grid {
     grid-template-columns: 1fr;
   }
+
   .admin-header {
     flex-direction: column;
     align-items: stretch;
@@ -342,17 +421,18 @@ textarea {
   .tv-shell {
     padding: 1rem;
   }
-  .slide-panel {
-    padding: 1.5rem;
-  }
-  .slide-title {
-    font-size: clamp(1.8rem, 8vw, 3rem);
-  }
-  .slide-message {
-    font-size: clamp(0.95rem, 2.8vw, 1.2rem);
-  }
-  .footer-line {
+
+  .screen-top {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .slide-panel {
+    padding: 1.3rem;
+  }
+
+  .news-ticker {
+    border-radius: 1rem;
+  }
 }
+

@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Welcome to Info TV",
+    "message": "Beautifully designed content for your public display, updated automatically from the admin panel.",
+    "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80",
+    "videoUrl": "",
+    "duration": 12,
+    "caption": "Use admin.html to add image or video slides."
+  },
+  {
+    "title": "Picture and Video Ready",
+    "message": "Show announcements, schedules, and visual storytelling with full-screen image and video support.",
+    "imageUrl": "https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&w=1600&q=80",
+    "videoUrl": "",
+    "duration": 12,
+    "caption": "Videos autoplay silently for TV-friendly presentations."
+  }
+]
