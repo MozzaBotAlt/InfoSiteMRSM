@@ -1,0 +1,358 @@
+:root {
+  color-scheme: dark;
+  --bg: #020814;
+  --surface: rgba(7, 18, 34, 0.95);
+  --accent: #6cc3ff;
+  --accent-soft: #2f7fd3;
+  --text: #eff7ff;
+  --muted: #9bb3cc;
+  --shadow: 0 40px 90px rgba(0, 0, 0, 0.35);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, rgba(108, 195, 255, 0.14), transparent 22%), linear-gradient(180deg, #041328 0%, #020814 58%, #000 100%);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+body.display-page {
+  min-height: 100vh;
+}
+
+.tv-shell {
+  width: 100%;
+  min-height: 100vh;
+  padding: clamp(1.5rem, 2vw, 3rem);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.5rem;
+}
+
+.screen-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.brand {
+  font-size: clamp(1.25rem, 2vw, 2.3rem);
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.clock {
+  font-size: clamp(1.35rem, 2.3vw, 2.7rem);
+  letter-spacing: 0.05em;
+  color: var(--text);
+}
+
+.slide-container {
+  position: relative;
+  display: grid;
+  min-height: calc(100vh - 18rem);
+  border-radius: 2rem;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.slide-media {
+  position: absolute;
+  inset: 0;
+  background: #000 center/cover no-repeat;
+}
+
+.slide-media video,
+.slide-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.slide-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.8) 60%);
+  pointer-events: none;
+}
+
+.slide-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: clamp(2rem, 3vw, 3rem);
+}
+
+.slide-title {
+  font-size: clamp(2rem, 4vw, 4.6rem);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+
+.slide-message {
+  font-size: clamp(1rem, 1.8vw, 1.7rem);
+  max-width: 72rem;
+  line-height: 1.55;
+  color: rgba(239, 247, 255, 0.93);
+}
+
+.slide-caption {
+  font-size: 1rem;
+  color: var(--muted);
+}
+
+.footer-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  border-radius: 1rem;
+  background: rgba(2, 8, 20, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  font-size: clamp(0.95rem, 1vw, 1rem);
+}
+
+.admin-link {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.admin-page {
+  min-height: 100vh;
+}
+
+.admin-shell {
+  width: min(1200px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 2vw, 3rem);
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+}
+
+.eyebrow {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.5rem);
+}
+
+.lead {
+  margin: 1rem 0 0;
+  max-width: 45rem;
+  line-height: 1.7;
+  color: var(--muted);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1.35fr 0.95fr;
+  gap: 1.75rem;
+}
+
+.card {
+  padding: 2rem;
+  border-radius: 1.75rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.16);
+}
+
+.card-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.input-group {
+  margin-bottom: 1.3rem;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem 1.1rem;
+  color: var(--text);
+  resize: vertical;
+}
+
+textarea {
+  min-height: 120px;
+}
+
+.short-row {
+  max-width: 16rem;
+}
+
+.hint,
+.note {
+  margin: 0.75rem 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 3rem;
+  padding: 0 1.25rem;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+}
+
+.button-primary {
+  background: linear-gradient(135deg, #50b7ff, #1c71ff);
+  color: #fff;
+}
+
+.button-secondary {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text);
+}
+
+.slide-list {
+  display: grid;
+  gap: 1rem;
+  max-height: 52vh;
+  overflow: auto;
+  padding-right: 0.25rem;
+}
+
+.slide-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.85rem;
+  padding: 1rem 1rem 1rem 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.slide-card strong {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.35rem;
+}
+
+.slide-card span {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.actions {
+  display: grid;
+  gap: 0.65rem;
+  justify-content: end;
+  align-content: center;
+}
+
+.actions button {
+  width: 100%;
+}
+
+.list-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+#import-json {
+  min-height: 10rem;
+}
+
+@media (max-width: 980px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  .admin-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 720px) {
+  .tv-shell {
+    padding: 1rem;
+  }
+  .slide-panel {
+    padding: 1.5rem;
+  }
+  .slide-title {
+    font-size: clamp(1.8rem, 8vw, 3rem);
+  }
+  .slide-message {
+    font-size: clamp(0.95rem, 2.8vw, 1.2rem);
+  }
+  .footer-line {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

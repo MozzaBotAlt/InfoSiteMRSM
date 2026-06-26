@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Info TV Admin</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="admin-page">
+  <div class="admin-shell">
+    <header class="admin-header">
+      <div>
+        <p class="eyebrow">ADMIN PANEL</p>
+        <h1>Info TV editor</h1>
+        <p class="lead">Create slides with text, images, and videos for the display page. Save and manage content here; the TV page updates automatically.</p>
+      </div>
+      <a class="button button-secondary" href="index.html">View display</a>
+    </header>
+
+    <section class="form-grid">
+      <div class="card">
+        <h2>New slide</h2>
+        <form id="slide-form">
+          <div class="input-group">
+            <label for="slide-title">Title</label>
+            <input id="slide-title" name="title" type="text" placeholder="Headline for the slide" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="slide-message">Message</label>
+            <textarea id="slide-message" name="message" rows="4" placeholder="Short description or announcement"></textarea>
+          </div>
+          <div class="input-group">
+            <label for="slide-image">Image URL</label>
+            <input id="slide-image" name="imageUrl" type="url" placeholder="https://example.com/photo.jpg" autocomplete="off" />
+          </div>
+          <div class="input-group">
+            <label for="slide-video">Video URL</label>
+            <input id="slide-video" name="videoUrl" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" />
+            <p class="hint">Use either image or video. Video will take priority if both are set.</p>
+          </div>
+          <div class="input-group short-row">
+            <label for="slide-duration">Display duration</label>
+            <input id="slide-duration" name="duration" type="number" min="5" value="12" />
+          </div>
+          <div class="button-row">
+            <button class="button button-primary" type="submit">Save slide</button>
+            <button class="button button-secondary" type="button" id="clear-btn">Clear</button>
+          </div>
+          <p class="note">Slides are stored locally in your browser. Use export/import to move content between devices.</p>
+        </form>
+      </div>
+
+      <div class="card card-panel">
+        <h2>Saved slides</h2>
+        <div id="slide-list" class="slide-list"></div>
+        <div class="list-footer">
+          <button class="button button-secondary" type="button" id="export-btn">Export JSON</button>
+          <button class="button button-secondary" type="button" id="import-btn">Import JSON</button>
+        </div>
+        <textarea id="import-json" placeholder="Paste slide JSON here"></textarea>
+      </div>
+    </section>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

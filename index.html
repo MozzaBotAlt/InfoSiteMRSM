@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Info TV Display</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="display-page">
+  <div class="tv-shell">
+    <div class="screen-top">
+      <div class="brand">Info TV</div>
+      <div id="clock" class="clock" aria-live="polite"></div>
+    </div>
+
+    <div class="slide-container" id="slide-container">
+      <div class="slide-media" id="slide-media"></div>
+      <div class="slide-panel">
+        <div class="slide-title" id="slide-title">Loading content...</div>
+        <div class="slide-message" id="slide-message">Open admin.html to configure slides and media.</div>
+        <div class="slide-caption" id="slide-caption"></div>
+      </div>
+    </div>
+
+    <div class="footer-line">
+      <div class="footer-label">Powered by InfoSiteMRSM</div>
+      <div class="footer-note">Auto-rotating content for TV display. Configure slides on <span class="admin-link">admin.html</span>.</div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
