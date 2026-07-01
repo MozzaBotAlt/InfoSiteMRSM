@@ -1,24 +1,6 @@
-const storageKey = 'infoTvSlidesMRSM';
-const dataFileName = 'data.json';
-
-const defaultSlides = [
-  {
-    title: 'Welcome to Info TV',
-    message: 'Beautifully designed content for your public display, updated automatically from the admin panel.',
-    imageUrl: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: '',
-    duration: 12,
-    caption: 'Use admin.html to add image or video slides.'
-  },
-  {
-    title: 'Picture and Video Ready',
-    message: 'Show announcements, schedules, and visual storytelling with full-screen image and video support.',
-    imageUrl: 'https://images.unsplash.com/photo-1496307653780-42ee777d4833?auto=format&fit=crop&w=1600&q=80',
-    videoUrl: '',
-    duration: 12,
-    caption: 'Videos autoplay silently for TV-friendly presentations.'
-  }
-];
+const BACKEND_API_BASE = "https://lvm-backend-j0ws.onrender.com/"; // Set your backend URL here, for example: 'http://localhost:4000'
+const BACKEND_DATA_ENDPOINT = '/infositemrsm';
+const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
 
 function normalizeSlide(slide = {}) {
   return {
@@ -31,77 +13,128 @@ function normalizeSlide(slide = {}) {
   };
 }
 
-async function loadSlidesFromDataFile() {
+const defaultAnnouncements = [
+  {
+    title: 'Welcome',
+    message: 'Display is ready. Configure content by assigning BACKEND_API_BASE and a backend endpoint.',
+    note: 'Backend feeds are required for this site to show content.'
+  }
+];
+
+const defaultSettings = {
+  accentColor: '#6cc3ff',
+  accentSoftColor: '#2f7fd3',
+  backgroundColor: '#020814',
+  surfaceColor: '#071222',
+  textColor: '#eff7ff',
+  mutedColor: '#9bb3cc',
+  slideTitleSize: '2.5',
+  slideMessageSize: '1.15',
+  overlayOpacity: '0.82',
+  tickerDuration: '20',
+  announcementCount: '6'
+};
+
+async function fetchBackendData() {
+  if (!BACKEND_API_BASE.trim()) {
+    return null;
+  }
+
   try {
-    const response = await fetch(dataFileName, { cache: 'no-store' });
+    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_DATA_ENDPOINT}`, {
+      cache: 'no-store'
+    });
+
     if (!response.ok) {
-      throw new Error(`Unable to load ${dataFileName}`);
+      throw new Error(`Backend request failed: ${response.status}`);
     }
 
-    const parsed = await response.json();
-    if (!Array.isArray(parsed) || !parsed.length) {
-      return null;
-    }
-
-    return parsed.map(normalizeSlide);
+    return await response.json();
   } catch (error) {
+    console.warn('Backend fetch failed.', error);
     return null;
   }
 }
 
-async function loadSlides() {
-  try {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length) {
-        return parsed.map(normalizeSlide);
-      }
-    }
-  } catch (error) {
-    console.warn('Could not load slides from local storage.', error);
-  }
-
-  const fromDataFile = await loadSlidesFromDataFile();
-  return fromDataFile || defaultSlides.slice();
+function buildAnnouncementsFromSlides(slides) {
+  return slides.map((slide, index) => ({
+    title: slide.title || `Update ${index + 1}`,
+    message: slide.message || '',
+    note: slide.caption || ''
+  }));
 }
 
-function saveSlides(slides) {
+function applyDisplaySettings(settings = {}) {
+  const theme = { ...defaultSettings, ...settings };
+  const root = document.documentElement;
+  root.style.setProperty('--accent', theme.accentColor);
+  root.style.setProperty('--accent-soft', theme.accentSoftColor);
+  root.style.setProperty('--bg', theme.backgroundColor);
+  root.style.setProperty('--surface', theme.surfaceColor);
+  root.style.setProperty('--text', theme.textColor);
+  root.style.setProperty('--muted', theme.mutedColor);
+  root.style.setProperty('--overlay-opacity', theme.overlayOpacity);
+  root.style.setProperty('--title-size', `${theme.slideTitleSize}rem`);
+  root.style.setProperty('--message-size', `${theme.slideMessageSize}rem`);
+}
+
+async function loadSlides() {
+  if (BACKEND_API_BASE.trim()) {
+    const backendData = await fetchBackendData();
+    if (backendData && Array.isArray(backendData.slides)) {
+      return backendData.slides.map(normalizeSlide);
+    }
+  }
+
+  return [];
+}
+
+async function loadDisplayData() {
+  const backendData = await fetchBackendData();
+  if (backendData && Array.isArray(backendData.slides) && backendData.slides.length) {
+    return {
+      slides: backendData.slides.map(normalizeSlide),
+      announcements: Array.isArray(backendData.announcements)
+        ? backendData.announcements
+        : buildAnnouncementsFromSlides(backendData.slides),
+      settings: backendData.settings || {}
+    };
+  }
+
+  return {
+    slides: [],
+    announcements: defaultAnnouncements,
+    settings: {}
+  };
+}
+
+function saveSlides(slides, settings = {}) {
   const normalizedSlides = slides.map(normalizeSlide);
-  localStorage.setItem(storageKey, JSON.stringify(normalizedSlides));
-  void persistToDataFile(normalizedSlides);
+  void persistSlidesToBackend(normalizedSlides, settings);
   return normalizedSlides;
 }
 
-async function persistToDataFile(slides) {
-  const payload = JSON.stringify(slides, null, 2);
-
-  try {
-    const response = await fetch(dataFileName, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: payload
-    });
-
-    if (response.ok) {
-      return;
-    }
-  } catch (error) {
-    console.warn('Remote save was not available. Falling back to download.', error);
+async function persistSlidesToBackend(slides, settings = {}) {
+  if (!BACKEND_API_BASE.trim()) {
+    return;
   }
 
   try {
-    const blob = new Blob([payload], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = dataFileName;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
+    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_SAVE_ENDPOINT}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        slides,
+        announcements: buildAnnouncementsFromSlides(slides),
+        settings
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend save failed: ${response.status}`);
+    }
   } catch (error) {
-    console.warn('Unable to download data file.', error);
+    console.warn('Backend save failed.', error);
   }
 }
 
@@ -117,10 +150,14 @@ async function initDisplayPage() {
   const slideTitle = document.getElementById('slide-title');
   const slideMessage = document.getElementById('slide-message');
   const slideCaption = document.getElementById('slide-caption');
+  const announcementList = document.getElementById('announcement-list');
   const tickerContent = document.getElementById('ticker-content');
   const clock = document.getElementById('clock');
 
-  let slides = await loadSlides();
+  const displayData = await loadDisplayData();
+  let slides = displayData.slides;
+  let announcements = displayData.announcements;
+  let currentSettings = displayData.settings || {};
   let currentIndex = 0;
   let timerId = null;
 
@@ -171,14 +208,53 @@ async function initDisplayPage() {
     }
   }
 
+  function renderAnnouncements(list) {
+    if (!Array.isArray(list) || !list.length) {
+      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcements available.</strong></div>';
+      return;
+    }
+
+    announcementList.innerHTML = '';
+    list.slice(0, 6).forEach((item) => {
+      const card = document.createElement('div');
+      card.className = 'announcement-card';
+
+      const title = document.createElement('strong');
+      title.textContent = item.title || 'Announcement';
+
+      const message = document.createElement('p');
+      message.textContent = item.message || '';
+
+      card.append(title, message);
+
+      if (item.note) {
+        const note = document.createElement('div');
+        note.className = 'announcement-meta';
+        note.textContent = item.note;
+        card.append(note);
+      }
+
+      announcementList.appendChild(card);
+    });
+  }
+
   function showCurrent() {
     if (!slides.length) {
-      slides = defaultSlides.slice();
+      slideTitle.textContent = BACKEND_API_BASE.trim()
+        ? 'Backend content unavailable'
+        : 'Backend URL not configured';
+      slideMessage.textContent = BACKEND_API_BASE.trim()
+        ? 'Unable to fetch slides from backend. Check your backend server and URL.'
+        : 'Open script.js and set BACKEND_API_BASE to your backend URL.';
+      slideCaption.textContent = '';
+      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcements available.</strong></div>';
+      return;
     }
     if (currentIndex >= slides.length) {
       currentIndex = 0;
     }
     renderSlide(slides[currentIndex]);
+    renderAnnouncements(announcements);
     const duration = Math.max(5, slides[currentIndex].duration || 12) * 1000;
     timerId = window.setTimeout(() => {
       currentIndex = (currentIndex + 1) % slides.length;
@@ -187,17 +263,9 @@ async function initDisplayPage() {
   }
 
   updateClock();
+  applyDisplaySettings(currentSettings);
   showCurrent();
   window.setInterval(updateClock, 60_000);
-
-  window.addEventListener('storage', async () => {
-    slides = await loadSlides();
-    currentIndex = 0;
-    if (timerId) {
-      window.clearTimeout(timerId);
-    }
-    showCurrent();
-  });
 }
 
 async function initAdminPage() {
@@ -212,9 +280,22 @@ async function initAdminPage() {
   const imageInput = document.getElementById('slide-image');
   const videoInput = document.getElementById('slide-video');
   const durationInput = document.getElementById('slide-duration');
+  const accentColorInput = document.getElementById('accent-color');
+  const accentSoftColorInput = document.getElementById('accent-soft-color');
+  const backgroundColorInput = document.getElementById('background-color');
+  const surfaceColorInput = document.getElementById('surface-color');
+  const textColorInput = document.getElementById('text-color');
+  const mutedColorInput = document.getElementById('muted-color');
+  const titleSizeInput = document.getElementById('title-size');
+  const messageSizeInput = document.getElementById('message-size');
+  const overlayOpacityInput = document.getElementById('overlay-opacity');
+  const tickerDurationInput = document.getElementById('ticker-duration');
+  const announcementCountInput = document.getElementById('announcement-count');
+  const saveSettingsBtn = document.getElementById('save-settings-btn');
 
   let slides = [];
   let editIndex = null;
+  let currentSettings = {};
 
   function updateSlideList() {
     slideList.innerHTML = '';
@@ -281,6 +362,43 @@ async function initAdminPage() {
   function removeSlide(index) {
     slides.splice(index, 1);
     persistSlides();
+  }
+
+  function getSettingsFromForm() {
+    return {
+      accentColor: accentColorInput.value,
+      accentSoftColor: accentSoftColorInput.value,
+      backgroundColor: backgroundColorInput.value,
+      surfaceColor: surfaceColorInput.value,
+      textColor: textColorInput.value,
+      mutedColor: mutedColorInput.value,
+      slideTitleSize: titleSizeInput.value,
+      slideMessageSize: messageSizeInput.value,
+      overlayOpacity: overlayOpacityInput.value,
+      tickerDuration: tickerDurationInput.value,
+      announcementCount: announcementCountInput.value
+    };
+  }
+
+  function updateSettingsForm(settings = {}) {
+    const theme = { ...defaultSettings, ...settings };
+    accentColorInput.value = theme.accentColor;
+    accentSoftColorInput.value = theme.accentSoftColor;
+    backgroundColorInput.value = theme.backgroundColor;
+    surfaceColorInput.value = theme.surfaceColor;
+    textColorInput.value = theme.textColor;
+    mutedColorInput.value = theme.mutedColor;
+    titleSizeInput.value = theme.slideTitleSize;
+    messageSizeInput.value = theme.slideMessageSize;
+    overlayOpacityInput.value = theme.overlayOpacity;
+    tickerDurationInput.value = theme.tickerDuration;
+    announcementCountInput.value = theme.announcementCount;
+  }
+
+  function persistSettings() {
+    currentSettings = getSettingsFromForm();
+    saveSlides(slides, currentSettings);
+    applyDisplaySettings(currentSettings);
   }
 
   function importFromJson() {

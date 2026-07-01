@@ -6,6 +6,9 @@
   --accent-soft: #2f7fd3;
   --text: #eff7ff;
   --muted: #9bb3cc;
+  --overlay-opacity: 0.82;
+  --title-size: 2.5rem;
+  --message-size: 1.15rem;
   --shadow: 0 30px 70px rgba(0, 0, 0, 0.28);
 }
 
@@ -46,6 +49,89 @@ body.display-page {
   display: flex;
   flex-direction: column;
   gap: 0.9rem;
+}
+
+.split-stage {
+  display: grid;
+  grid-template-rows: minmax(32rem, 1.2fr) minmax(16rem, 0.8fr);
+  gap: 1rem;
+}
+
+.video-section,
+.announcement-section {
+  border-radius: 1.5rem;
+  background: rgba(7, 18, 34, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.section-label {
+  padding: 1rem 1.4rem 0.75rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.video-display {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+}
+
+.slide-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.6rem;
+  padding: clamp(1.2rem, 2.4vw, 2rem);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.12), rgba(0, 0, 0, var(--overlay-opacity, 0.82)) 65%);
+}
+
+.slide-overlay-top {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.slide-clock {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.announcement-list {
+  display: grid;
+  gap: 0.85rem;
+  padding: 1rem 1.25rem 1.5rem;
+}
+
+.announcement-card {
+  padding: 1.05rem 1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.announcement-card strong {
+  display: block;
+  margin-bottom: 0.45rem;
+  font-size: 1rem;
+}
+
+.announcement-card p {
+  margin: 0;
+  color: rgba(239, 247, 255, 0.9);
+  line-height: 1.5;
+}
+
+.announcement-meta {
+  margin-top: 0.55rem;
+  font-size: 0.84rem;
+  color: var(--muted);
 }
 
 .screen-top {
@@ -153,7 +239,7 @@ body.display-page {
 
 .slide-title {
   margin: 0;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-size: var(--title-size, 2.5rem);
   line-height: 1.08;
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -162,7 +248,7 @@ body.display-page {
 
 .slide-message {
   margin: 0;
-  font-size: clamp(0.95rem, 1.6vw, 1.15rem);
+  font-size: var(--message-size, 1.15rem);
   max-width: 56rem;
   line-height: 1.5;
   color: rgba(239, 247, 255, 0.93);

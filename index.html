@@ -19,16 +19,33 @@
       <div id="clock" class="clock" aria-live="polite"></div>
     </header>
 
-    <main class="slide-container" id="slide-container">
-      <div class="slide-media" id="slide-media"></div>
-      <div class="slide-panel">
-        <p class="eyebrow">Now showing</p>
-        <h1 class="slide-title" id="slide-title">Loading content...</h1>
-        <p class="slide-message" id="slide-message">Open admin.html to configure slides and media.</p>
-        <div class="slide-meta-row">
-          <div class="slide-caption" id="slide-caption"></div>
+    <main class="split-stage">
+      <section class="video-section">
+        <div class="section-label">Video Montage</div>
+        <div class="video-display">
+          <div class="slide-media" id="slide-media"></div>
+          <div class="slide-overlay">
+            <div class="slide-overlay-top">
+              <div class="slide-clock" id="clock"></div>
+            </div>
+            <p class="eyebrow">Now showing</p>
+            <h1 class="slide-title" id="slide-title">Loading content...</h1>
+            <p class="slide-message" id="slide-message">Fetching latest content from backend.</p>
+            <div class="slide-meta-row">
+              <div class="slide-caption" id="slide-caption"></div>
+            </div>
+          </div>
         </div>
-      </div>
+      </section>
+
+      <section class="announcement-section">
+        <div class="section-label">Short announcements</div>
+        <div class="announcement-list" id="announcement-list">
+          <div class="announcement-card">
+            <strong>Loading announcements...</strong>
+          </div>
+        </div>
+      </section>
     </main>
 
     <div class="news-ticker" aria-live="polite">
