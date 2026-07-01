@@ -53,7 +53,8 @@ body.display-page {
 
 .split-stage {
   display: grid;
-  grid-template-rows: minmax(32rem, 1.2fr) minmax(16rem, 0.8fr);
+  grid-template-columns: minmax(42%, 2fr) minmax(28%, 1fr);
+  align-items: stretch;
   gap: 1rem;
 }
 
@@ -105,21 +106,58 @@ body.display-page {
 
 .announcement-list {
   display: grid;
-  gap: 0.85rem;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
   padding: 1rem 1.25rem 1.5rem;
 }
 
 .announcement-card {
-  padding: 1.05rem 1rem;
+  position: relative;
+  min-height: 12rem;
+  padding: 1.35rem 1rem 1.2rem;
   border-radius: 1.25rem;
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: var(--text);
+}
+
+.announcement-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.72));
+  opacity: 1;
+  pointer-events: none;
+}
+
+.announcement-card[data-image] {
+  background-size: cover;
+  background-position: center;
+}
+
+.announcement-card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .announcement-card strong {
   display: block;
-  margin-bottom: 0.45rem;
+  margin-bottom: 0.5rem;
   font-size: 1rem;
+}
+
+.announcement-preview-label {
+  display: inline-block;
+  margin-bottom: 0.3rem;
+  font-size: 0.625rem;
+  line-height: 1.2;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .announcement-card p {

@@ -208,29 +208,42 @@ async function initDisplayPage() {
     }
   }
 
-  function renderAnnouncements(list) {
-    if (!Array.isArray(list) || !list.length) {
-      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcements available.</strong></div>';
+  function renderAnnouncements(slides, activeIndex) {
+    if (!Array.isArray(slides) || !slides.length) {
+      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcement previews available.</strong></div>';
       return;
     }
 
+    const firstSlide = slides[activeIndex] || slides[0];
+    const secondSlide = slides[(activeIndex + 1) % slides.length] || slides[0];
+    const previewSlides = [firstSlide, secondSlide];
+
     announcementList.innerHTML = '';
-    list.slice(0, 6).forEach((item) => {
+    previewSlides.forEach((slide, index) => {
       const card = document.createElement('div');
       card.className = 'announcement-card';
 
+      if (slide.imageUrl) {
+        card.dataset-image = slide.imageUrl;
+        card.style.backgroundImage = `url('${slide.imageUrl}')`;
+      }
+
+      const previewLabel = document.createElement('span');
+      previewLabel.className = 'announcement-preview-label';
+      previewLabel.textContent = index === 0 ? 'Now previewing' : 'Next preview';
+
       const title = document.createElement('strong');
-      title.textContent = item.title || 'Announcement';
+      title.textContent = slide.title || `Slide ${activeIndex + index + 1}`;
 
       const message = document.createElement('p');
-      message.textContent = item.message || '';
+      message.textContent = slide.message || 'No message available.';
 
-      card.append(title, message);
+      card.append(previewLabel, title, message);
 
-      if (item.note) {
+      if (slide.caption) {
         const note = document.createElement('div');
         note.className = 'announcement-meta';
-        note.textContent = item.note;
+        note.textContent = slide.caption;
         card.append(note);
       }
 
@@ -254,7 +267,7 @@ async function initDisplayPage() {
       currentIndex = 0;
     }
     renderSlide(slides[currentIndex]);
-    renderAnnouncements(announcements);
+    renderAnnouncements(slides, currentIndex);
     const duration = Math.max(5, slides[currentIndex].duration || 12) * 1000;
     timerId = window.setTimeout(() => {
       currentIndex = (currentIndex + 1) % slides.length;
