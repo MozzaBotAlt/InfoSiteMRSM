@@ -1,6 +1,11 @@
-const BACKEND_API_BASE = "https://lvm-backend-j0ws.onrender.com/"; // Set your backend URL here, for example: 'http://localhost:4000'
+const BACKEND_API_BASE = 'https://gapim.onrender.com';
 const BACKEND_DATA_ENDPOINT = '/infositemrsm';
 const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
+const defaultFooterNews = 'Welcome to MRSM Info TV • New updates will appear here • Keep an eye on the latest announcements';
+
+function buildBackendUrl(endpoint) {
+  return `${BACKEND_API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+}
 
 function normalizeSlide(slide = {}) {
   return {
@@ -32,7 +37,8 @@ const defaultSettings = {
   slideMessageSize: '1.15',
   overlayOpacity: '0.82',
   tickerDuration: '20',
-  announcementCount: '6'
+  announcementCount: '6',
+  footerNews: defaultFooterNews
 };
 
 async function fetchBackendData() {
@@ -41,7 +47,7 @@ async function fetchBackendData() {
   }
 
   try {
-    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_DATA_ENDPOINT}`, {
+    const response = await fetch(buildBackendUrl(BACKEND_DATA_ENDPOINT), {
       cache: 'no-store'
     });
 
@@ -76,6 +82,7 @@ function applyDisplaySettings(settings = {}) {
   root.style.setProperty('--overlay-opacity', theme.overlayOpacity);
   root.style.setProperty('--title-size', `${theme.slideTitleSize}rem`);
   root.style.setProperty('--message-size', `${theme.slideMessageSize}rem`);
+  root.style.setProperty('--ticker-duration', `${Math.max(12, Number(theme.tickerDuration) || 20)}s`);
 }
 
 async function loadSlides() {
@@ -91,20 +98,24 @@ async function loadSlides() {
 
 async function loadDisplayData() {
   const backendData = await fetchBackendData();
+  const footerNews = backendData?.newsText || backendData?.footerNews || backendData?.settings?.footerNews || defaultFooterNews;
+
   if (backendData && Array.isArray(backendData.slides) && backendData.slides.length) {
     return {
       slides: backendData.slides.map(normalizeSlide),
       announcements: Array.isArray(backendData.announcements)
         ? backendData.announcements
         : buildAnnouncementsFromSlides(backendData.slides),
-      settings: backendData.settings || {}
+      settings: backendData.settings || {},
+      newsText: footerNews
     };
   }
 
   return {
     slides: [],
     announcements: defaultAnnouncements,
-    settings: {}
+    settings: {},
+    newsText: footerNews
   };
 }
 
@@ -120,15 +131,27 @@ async function persistSlidesToBackend(slides, settings = {}) {
   }
 
   try {
-    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_SAVE_ENDPOINT}`, {
-      method: 'PUT',
+    const footerNews = (settings.footerNews || settings.newsText || '').trim();
+    const payload = {
+      slides,
+      announcements: buildAnnouncementsFromSlides(slides),
+      settings: { ...settings, footerNews },
+      newsText: footerNews
+    };
+
+    let response = await fetch(buildBackendUrl(BACKEND_SAVE_ENDPOINT), {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        slides,
-        announcements: buildAnnouncementsFromSlides(slides),
-        settings
-      })
+      body: JSON.stringify(payload)
     });
+
+    if (!response.ok) {
+      response = await fetch(buildBackendUrl(BACKEND_SAVE_ENDPOINT), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    }
 
     if (!response.ok) {
       throw new Error(`Backend save failed: ${response.status}`);
@@ -158,6 +181,7 @@ async function initDisplayPage() {
   let slides = displayData.slides;
   let announcements = displayData.announcements;
   let currentSettings = displayData.settings || {};
+  let currentNewsText = displayData.newsText || currentSettings.footerNews || defaultFooterNews;
   let currentIndex = 0;
   let timerId = null;
 
@@ -165,21 +189,19 @@ async function initDisplayPage() {
     clock.textContent = formatClock(new Date());
   }
 
-  function updateTicker(slide) {
-    const parts = [
-      slide.title || 'Information',
-      slide.message || '',
-      slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`
-    ].filter(Boolean);
-    const text = `${parts.join(' • ')} • ${parts.join(' • ')}`;
-    tickerContent.innerHTML = `<span>${text}</span><span>${text}</span>`;
+  function updateTicker() {
+    const text = (currentNewsText || '').trim() || `Latest updates • ${slides.length ? 'Slides ready' : 'No content yet'}`;
+    const repeatedText = `${text} • ${text}`;
+    tickerContent.innerHTML = `<span>${repeatedText}</span><span>${repeatedText}</span>`;
+    const duration = Math.max(18, Math.min(40, Math.ceil(text.length / 8)));
+    tickerContent.style.setProperty('--ticker-duration', `${Math.max(12, Number(currentSettings.tickerDuration) || duration)}s`);
   }
 
   function renderSlide(slide) {
     slideTitle.textContent = slide.title || 'Information';
     slideMessage.textContent = slide.message || 'Open admin.html to edit the slide content.';
     slideCaption.textContent = slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`;
-    updateTicker(slide);
+    updateTicker();
     slideMedia.innerHTML = '';
 
     if (slide.videoUrl) {
@@ -224,7 +246,7 @@ async function initDisplayPage() {
       card.className = 'announcement-card';
 
       if (slide.imageUrl) {
-        card.dataset-image = slide.imageUrl;
+        card.dataset.image = slide.imageUrl;
         card.style.backgroundImage = `url('${slide.imageUrl}')`;
       }
 
@@ -277,6 +299,7 @@ async function initDisplayPage() {
 
   updateClock();
   applyDisplaySettings(currentSettings);
+  updateTicker();
   showCurrent();
   window.setInterval(updateClock, 60_000);
 }
@@ -305,6 +328,8 @@ async function initAdminPage() {
   const tickerDurationInput = document.getElementById('ticker-duration');
   const announcementCountInput = document.getElementById('announcement-count');
   const saveSettingsBtn = document.getElementById('save-settings-btn');
+  const settingsForm = document.getElementById('settings-form');
+  const footerNewsInput = document.getElementById('footer-news');
 
   let slides = [];
   let editIndex = null;
@@ -352,7 +377,7 @@ async function initAdminPage() {
   }
 
   function persistSlides() {
-    slides = saveSlides(slides);
+    slides = saveSlides(slides, { ...currentSettings, footerNews: footerNewsInput.value.trim() });
     updateSlideList();
   }
 
@@ -389,7 +414,8 @@ async function initAdminPage() {
       slideMessageSize: messageSizeInput.value,
       overlayOpacity: overlayOpacityInput.value,
       tickerDuration: tickerDurationInput.value,
-      announcementCount: announcementCountInput.value
+      announcementCount: announcementCountInput.value,
+      footerNews: footerNewsInput.value.trim()
     };
   }
 
@@ -406,6 +432,7 @@ async function initAdminPage() {
     overlayOpacityInput.value = theme.overlayOpacity;
     tickerDurationInput.value = theme.tickerDuration;
     announcementCountInput.value = theme.announcementCount;
+    footerNewsInput.value = theme.footerNews || theme.newsText || '';
   }
 
   function persistSettings() {
@@ -455,8 +482,17 @@ async function initAdminPage() {
 
   importBtn.addEventListener('click', importFromJson);
   clearBtn.addEventListener('click', clearForm);
+  saveSettingsBtn.addEventListener('click', persistSettings);
+  settingsForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    persistSettings();
+  });
 
-  slides = await loadSlides();
+  const displayData = await loadDisplayData();
+  slides = displayData.slides;
+  currentSettings = displayData.settings || {};
+  updateSettingsForm(currentSettings);
+  footerNewsInput.value = displayData.newsText || currentSettings.footerNews || '';
   updateSlideList();
 }
 
