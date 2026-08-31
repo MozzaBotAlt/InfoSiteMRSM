@@ -6,45 +6,77 @@
   <title>Info TV Display</title>
   <link rel="stylesheet" href="style.css" />
 </head>
-<body class="display-page">
-  <div class="tv-shell">
-    <main class="split-stage">
-      <section class="video-section">
-        <div class="section-label">Video Montage</div>
-        <div class="video-display">
-          <div class="slide-media" id="slide-media"></div>
-          <div class="slide-overlay">
-            <div class="slide-overlay-top">
-              <div class="slide-clock" id="clock"></div>
-            </div>
-            <p class="eyebrow">Now showing</p>
-            <h1 class="slide-title" id="slide-title">Loading content...</h1>
-            <p class="slide-message" id="slide-message">Fetching latest content from backend.</p>
-            <div class="slide-meta-row">
-              <div class="slide-caption" id="slide-caption"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="announcement-section">
-        <div class="section-label">Short announcements</div>
-        <div class="announcement-list" id="announcement-list">
-          <div class="announcement-card">
-            <strong>Loading announcements...</strong>
-          </div>
-        </div>
-      </section>
-    </main>
-
-    <div class="news-ticker" aria-live="polite">
-      <span class="ticker-label">Latest</span>
-      <div class="ticker-track">
-        <div class="ticker-content" id="ticker-content"></div>
+<body>
+  <main class="screen-board" aria-label="MRSM information display">
+    <div class="grid-item video-panel">
+      <div class="panel-tag">Video 1</div>
+      <video autoplay muted loop playsinline>
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+      </video>
+      <div class="panel-overlay">
+        <h2>School Welcome</h2>
+        <p>Welcome to MRSM Info Board</p>
       </div>
     </div>
-  </div>
 
-  <script src="script.js"></script>
+    <div class="grid-item video-panel">
+      <div class="panel-tag">Video 2</div>
+      <video autoplay muted loop playsinline>
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
+      </video>
+      <div class="panel-overlay">
+        <h2>Campus Life</h2>
+        <p>Daily activities and achievements</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-one">
+      <div class="panel-content">
+        <span class="panel-label">Announcement</span>
+        <h3>Assembly Notice</h3>
+        <p>Students are required to attend the morning assembly at 7:30 a.m.</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-two">
+      <div class="panel-content">
+        <span class="panel-label">Notice</span>
+        <h3>Exam Schedule</h3>
+        <p>Final examination timetable will be posted in the academic office.</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-three">
+      <div class="panel-content">
+        <span class="panel-label">Update</span>
+        <h3>Club Activity</h3>
+        <p>Science and robotics club registration is now open for this month.</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-four">
+      <div class="panel-content">
+        <span class="panel-label">Reminder</span>
+        <h3>Library Hours</h3>
+        <p>Library services continue until 9:00 p.m. during examination week.</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-five">
+      <div class="panel-content">
+        <span class="panel-label">Achievement</span>
+        <h3>Sports Day</h3>
+        <p>Registration for sports events is available at the PE office.</p>
+      </div>
+    </div>
+
+    <div class="grid-item announcement-panel panel-six">
+      <div class="panel-content">
+        <span class="panel-label">Event</span>
+        <h3>Student Seminar</h3>
+        <p>Guest speakers will share leadership and motivational tips this Friday.</p>
+      </div>
+    </div>
+  </main>
 </body>
 </html>

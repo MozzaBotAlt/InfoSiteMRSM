@@ -1,10 +1,31 @@
 const BACKEND_API_BASE = 'https://gapim.onrender.com';
-const BACKEND_DATA_ENDPOINT = '/infositemrsm';
-const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
+const BACKEND_ENDPOINT = '/infositemrsm';
 const defaultFooterNews = 'Welcome to MRSM Info TV • New updates will appear here • Keep an eye on the latest announcements';
 
-function buildBackendUrl(endpoint) {
-  return `${BACKEND_API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+function buildBackendUrl(endpoint = BACKEND_ENDPOINT) {
+  const safeEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  return `${BACKEND_API_BASE}${safeEndpoint}`;
+}
+
+function normalizeSettings(settings = {}) {
+  const theme = { ...defaultSettings, ...settings };
+  const footerNews = (theme.footerNews ?? theme.newsText ?? defaultFooterNews ?? '').toString().trim() || defaultFooterNews;
+
+  return {
+    accentColor: theme.accentColor || defaultSettings.accentColor,
+    accentSoftColor: theme.accentSoftColor || defaultSettings.accentSoftColor,
+    backgroundColor: theme.backgroundColor || defaultSettings.backgroundColor,
+    surfaceColor: theme.surfaceColor || defaultSettings.surfaceColor,
+    textColor: theme.textColor || defaultSettings.textColor,
+    mutedColor: theme.mutedColor || defaultSettings.mutedColor,
+    slideTitleSize: theme.slideTitleSize ?? defaultSettings.slideTitleSize,
+    slideMessageSize: theme.slideMessageSize ?? defaultSettings.slideMessageSize,
+    overlayOpacity: theme.overlayOpacity ?? defaultSettings.overlayOpacity,
+    tickerDuration: theme.tickerDuration ?? defaultSettings.tickerDuration,
+    announcementCount: theme.announcementCount ?? defaultSettings.announcementCount,
+    footerNews,
+    newsText: footerNews
+  };
 }
 
 function normalizeSlide(slide = {}) {
@@ -21,8 +42,8 @@ function normalizeSlide(slide = {}) {
 const defaultAnnouncements = [
   {
     title: 'Welcome',
-    message: 'Display is ready. Configure content by assigning BACKEND_API_BASE and a backend endpoint.',
-    note: 'Backend feeds are required for this site to show content.'
+    message: 'Display is ready and connected to the gapim.onrender.com endpoint.',
+    note: 'The TV page reads slide and theme data from the shared backend.'
   }
 ];
 
@@ -47,7 +68,7 @@ async function fetchBackendData() {
   }
 
   try {
-    const response = await fetch(buildBackendUrl(BACKEND_DATA_ENDPOINT), {
+    const response = await fetch(buildBackendUrl(BACKEND_ENDPOINT), {
       cache: 'no-store'
     });
 
@@ -98,7 +119,8 @@ async function loadSlides() {
 
 async function loadDisplayData() {
   const backendData = await fetchBackendData();
-  const footerNews = backendData?.newsText || backendData?.footerNews || backendData?.settings?.footerNews || defaultFooterNews;
+  const normalizedSettings = normalizeSettings(backendData?.settings || {});
+  const footerNews = backendData?.newsText || backendData?.footerNews || normalizedSettings.footerNews || defaultFooterNews;
 
   if (backendData && Array.isArray(backendData.slides) && backendData.slides.length) {
     return {
@@ -106,7 +128,7 @@ async function loadDisplayData() {
       announcements: Array.isArray(backendData.announcements)
         ? backendData.announcements
         : buildAnnouncementsFromSlides(backendData.slides),
-      settings: backendData.settings || {},
+      settings: normalizedSettings,
       newsText: footerNews
     };
   }
@@ -114,7 +136,7 @@ async function loadDisplayData() {
   return {
     slides: [],
     announcements: defaultAnnouncements,
-    settings: {},
+    settings: normalizedSettings,
     newsText: footerNews
   };
 }
@@ -131,22 +153,23 @@ async function persistSlidesToBackend(slides, settings = {}) {
   }
 
   try {
-    const footerNews = (settings.footerNews || settings.newsText || '').trim();
+    const normalizedSettings = normalizeSettings(settings);
     const payload = {
       slides,
       announcements: buildAnnouncementsFromSlides(slides),
-      settings: { ...settings, footerNews },
-      newsText: footerNews
+      settings: normalizedSettings,
+      newsText: normalizedSettings.footerNews,
+      footerNews: normalizedSettings.footerNews
     };
 
-    let response = await fetch(buildBackendUrl(BACKEND_SAVE_ENDPOINT), {
+    let response = await fetch(buildBackendUrl(BACKEND_ENDPOINT), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
     });
 
     if (!response.ok) {
-      response = await fetch(buildBackendUrl(BACKEND_SAVE_ENDPOINT), {
+      response = await fetch(buildBackendUrl(BACKEND_ENDPOINT), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -279,8 +302,8 @@ async function initDisplayPage() {
         ? 'Backend content unavailable'
         : 'Backend URL not configured';
       slideMessage.textContent = BACKEND_API_BASE.trim()
-        ? 'Unable to fetch slides from backend. Check your backend server and URL.'
-        : 'Open script.js and set BACKEND_API_BASE to your backend URL.';
+        ? 'Unable to fetch slides from https://gapim.onrender.com/infositemrsm. Check the backend route and data.'
+        : 'Open script.js and set BACKEND_API_BASE to https://gapim.onrender.com.';
       slideCaption.textContent = '';
       announcementList.innerHTML = '<div class="announcement-card"><strong>No announcements available.</strong></div>';
       return;
