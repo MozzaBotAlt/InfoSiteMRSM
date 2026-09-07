@@ -1,124 +1,179 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Info TV Admin</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body class="admin-page">
-  <div class="admin-shell">
-    <header class="admin-header">
-      <div>
-        <p class="eyebrow">ADMIN PANEL</p>
-        <h1>Info TV editor</h1>
-        <p class="lead">Create slides with text, images, and videos for the display page. Save and manage content here; the TV page updates automatically.</p>
-      </div>
-      <a class="button button-secondary" href="index.html">View display</a>
-    </header>
-
-    <section class="form-grid">
-      <div class="card">
-        <h2>New slide</h2>
-        <form id="slide-form">
-          <div class="input-group">
-            <label for="slide-title">Title</label>
-            <input id="slide-title" name="title" type="text" placeholder="Headline for the slide" autocomplete="off" />
-          </div>
-          <div class="input-group">
-            <label for="slide-message">Message</label>
-            <textarea id="slide-message" name="message" rows="4" placeholder="Short description or announcement"></textarea>
-          </div>
-          <div class="input-group">
-            <label for="slide-image">Image URL</label>
-            <input id="slide-image" name="imageUrl" type="url" placeholder="https://example.com/photo.jpg" autocomplete="off" />
-          </div>
-          <div class="input-group">
-            <label for="slide-video">Video URL</label>
-            <input id="slide-video" name="videoUrl" type="url" placeholder="https://example.com/video.mp4" autocomplete="off" />
-            <p class="hint">Use either image or video. Video will take priority if both are set.</p>
-          </div>
-          <div class="input-group short-row">
-            <label for="slide-duration">Display duration</label>
-            <input id="slide-duration" name="duration" type="number" min="5" value="12" />
-          </div>
-          <div class="button-row">
-            <button class="button button-primary" type="submit">Save slide</button>
-            <button class="button button-secondary" type="button" id="clear-btn">Clear</button>
-          </div>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2>Display settings</h2>
-        <form id="settings-form">
-          <div class="input-group">
-            <label for="accent-color">Accent color</label>
-            <input id="accent-color" name="accentColor" type="color" value="#6cc3ff" />
-          </div>
-          <div class="input-group">
-            <label for="accent-soft-color">Accent soft color</label>
-            <input id="accent-soft-color" name="accentSoftColor" type="color" value="#2f7fd3" />
-          </div>
-          <div class="input-group">
-            <label for="background-color">Background color</label>
-            <input id="background-color" name="backgroundColor" type="color" value="#020814" />
-          </div>
-          <div class="input-group">
-            <label for="surface-color">Surface color</label>
-            <input id="surface-color" name="surfaceColor" type="color" value="#071222" />
-          </div>
-          <div class="input-group">
-            <label for="text-color">Text color</label>
-            <input id="text-color" name="textColor" type="color" value="#eff7ff" />
-          </div>
-          <div class="input-group">
-            <label for="muted-color">Muted text color</label>
-            <input id="muted-color" name="mutedColor" type="color" value="#9bb3cc" />
-          </div>
-          <div class="input-group short-row">
-            <label for="title-size">Slide title size (rem)</label>
-            <input id="title-size" name="slideTitleSize" type="number" step="0.1" min="1" value="2.5" />
-          </div>
-          <div class="input-group short-row">
-            <label for="message-size">Message size (rem)</label>
-            <input id="message-size" name="slideMessageSize" type="number" step="0.05" min="0.8" value="1.15" />
-          </div>
-          <div class="input-group short-row">
-            <label for="overlay-opacity">Overlay opacity</label>
-            <input id="overlay-opacity" name="overlayOpacity" type="number" step="0.05" min="0.1" max="1" value="0.82" />
-          </div>
-          <div class="input-group short-row">
-            <label for="ticker-duration">Ticker duration (seconds)</label>
-            <input id="ticker-duration" name="tickerDuration" type="number" step="1" min="5" value="20" />
-          </div>
-          <div class="input-group short-row">
-            <label for="announcement-count">Announcement count</label>
-            <input id="announcement-count" name="announcementCount" type="number" min="1" max="12" value="6" />
-          </div>
-          <div class="input-group">
-            <label for="footer-news">Footer news text</label>
-            <textarea id="footer-news" name="footerNews" rows="3" placeholder="Scrolling footer news for the TV display"></textarea>
-            <p class="hint">This appears in the scrolling footer bar on the display page.</p>
-          </div>
-          <div class="button-row">
-            <button class="button button-primary" type="button" id="save-settings-btn">Save settings</button>
-          </div>
-          <p class="note">Customize the display theme, text sizes, ticker speed, and footer news. Settings are stored on the backend.</p>
-        </form>
-      </div>
-
-      <div class="card card-panel">
-        <h2>Saved slides</h2>
-        <div id="slide-list" class="slide-list"></div>
-        <div class="list-footer">
-          <button class="button button-secondary" type="button" id="export-btn">Export JSON</button>
-          <button class="button button-secondary" type="button" id="import-btn">Import JSON</button>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MRSM Info TV Admin</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="admin-page">
+    <main class="admin-shell">
+      <header class="admin-header">
+        <div>
+          <p class="eyebrow">MRSM INFO TV</p>
+          <h1>Display control room</h1>
+          <p class="lead">
+            Manage the playlist, picture announcements, ticker, and timetable
+            embed.
+          </p>
         </div>
-        <textarea id="import-json" placeholder="Paste slide JSON here"></textarea>
-      </div>
-    </section>
-  </div>
-  <script src="script.js"></script>
-</body>
+        <a class="button button-secondary" href="index.html">Open display</a>
+      </header>
+      <section class="admin-grid">
+        <div class="admin-card">
+          <p class="eyebrow">VIDEO PLAYLIST</p>
+          <h2>Add a video</h2>
+          <form id="slide-form">
+            <label
+              >Title<input
+                id="slide-title"
+                type="text"
+                placeholder="Campus update" /></label
+            ><label
+              >Description<textarea
+                id="slide-message"
+                rows="3"
+                placeholder="Short description"
+              ></textarea></label
+            ><label
+              >Video URL<input
+                id="slide-video"
+                type="url"
+                required
+                placeholder="https://example.com/video.mp4" /></label
+            ><label
+              >Play for at least (seconds)<input
+                id="slide-duration"
+                type="number"
+                min="5"
+                value="30"
+            /></label>
+            <div class="button-row">
+              <button class="button button-primary" type="submit">
+                Save video</button
+              ><button
+                class="button button-secondary"
+                type="button"
+                id="clear-btn"
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="admin-card">
+          <p class="eyebrow">PICTURE ANNOUNCEMENTS</p>
+          <h2>Add BWP or Maktab</h2>
+          <form id="announcement-form">
+            <label
+              >Section<select id="announcement-section">
+                <option value="bwp">BWP</option>
+                <option value="maktab">Maktab</option>
+              </select></label
+            ><label
+              >Title<input
+                id="announcement-title"
+                type="text"
+                required
+                placeholder="Announcement title" /></label
+            ><label
+              >Picture URL<input
+                id="announcement-image"
+                type="url"
+                required
+                placeholder="https://example.com/poster.jpg" /></label
+            ><label
+              >Open hyperlink<input
+                id="announcement-link"
+                type="url"
+                required
+                placeholder="https://example.com/details" /></label
+            ><label
+              >Show for (seconds)<input
+                id="announcement-duration"
+                type="number"
+                min="5"
+                value="12"
+            /></label>
+            <div class="button-row">
+              <button class="button button-primary" type="submit">
+                Save announcement</button
+              ><button
+                class="button button-secondary"
+                type="button"
+                id="clear-announcement-btn"
+              >
+                Clear
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="admin-card admin-wide">
+          <p class="eyebrow">DISPLAY SETTINGS</p>
+          <h2>Ticker and timetable</h2>
+          <form id="settings-form" class="settings-grid">
+            <label class="wide-field"
+              >Scrolling ticker text<textarea
+                id="footer-news"
+                rows="3"
+                placeholder="Text separated by dots or bullets"
+              ></textarea></label
+            ><label
+              >Scroll speed (seconds)<input
+                id="ticker-duration"
+                type="number"
+                min="5"
+                value="24" /></label
+            ><label
+              >Timetable embed URL<input
+                id="timetable-url"
+                type="url"
+                placeholder="https://calendar.example.com/embed" /></label
+            ><label
+              >Timetable height (px)<input
+                id="timetable-height"
+                type="number"
+                min="100"
+                max="500"
+                value="210"
+            /></label>
+            <div class="wide-field">
+              <button class="button button-primary" type="submit">
+                Save display settings
+              </button>
+            </div>
+          </form>
+          <p class="hint">
+            Use a public HTTPS embed URL. The timetable area is intentionally
+            smaller than the video area.
+          </p>
+        </div>
+        <div class="admin-card admin-wide">
+          <p class="eyebrow">CONTENT LIBRARY</p>
+          <h2>Saved videos</h2>
+          <div id="slide-list" class="slide-list"></div>
+          <div class="list-footer">
+            <button
+              class="button button-secondary"
+              type="button"
+              id="export-btn"
+            >
+              Export JSON</button
+            ><button
+              class="button button-secondary"
+              type="button"
+              id="import-btn"
+            >
+              Import JSON
+            </button>
+          </div>
+          <textarea
+            id="import-json"
+            placeholder="Paste video JSON here"
+          ></textarea>
+        </div>
+      </section>
+    </main>
+    <script src="script.js"></script>
+  </body>
 </html>

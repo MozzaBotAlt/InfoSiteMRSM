@@ -1,82 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Info TV Display</title>
-  <link rel="stylesheet" href="style.css" />
-</head>
-<body>
-  <main class="screen-board" aria-label="MRSM information display">
-    <div class="grid-item video-panel">
-      <div class="panel-tag">Video 1</div>
-      <video autoplay muted loop playsinline>
-        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
-      </video>
-      <div class="panel-overlay">
-        <h2>School Welcome</h2>
-        <p>Welcome to MRSM Info Board</p>
-      </div>
-    </div>
-
-    <div class="grid-item video-panel">
-      <div class="panel-tag">Video 2</div>
-      <video autoplay muted loop playsinline>
-        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm" type="video/webm" />
-      </video>
-      <div class="panel-overlay">
-        <h2>Campus Life</h2>
-        <p>Daily activities and achievements</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-one">
-      <div class="panel-content">
-        <span class="panel-label">Announcement</span>
-        <h3>Assembly Notice</h3>
-        <p>Students are required to attend the morning assembly at 7:30 a.m.</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-two">
-      <div class="panel-content">
-        <span class="panel-label">Notice</span>
-        <h3>Exam Schedule</h3>
-        <p>Final examination timetable will be posted in the academic office.</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-three">
-      <div class="panel-content">
-        <span class="panel-label">Update</span>
-        <h3>Club Activity</h3>
-        <p>Science and robotics club registration is now open for this month.</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-four">
-      <div class="panel-content">
-        <span class="panel-label">Reminder</span>
-        <h3>Library Hours</h3>
-        <p>Library services continue until 9:00 p.m. during examination week.</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-five">
-      <div class="panel-content">
-        <span class="panel-label">Achievement</span>
-        <h3>Sports Day</h3>
-        <p>Registration for sports events is available at the PE office.</p>
-      </div>
-    </div>
-
-    <div class="grid-item announcement-panel panel-six">
-      <div class="panel-content">
-        <span class="panel-label">Event</span>
-        <h3>Student Seminar</h3>
-        <p>Guest speakers will share leadership and motivational tips this Friday.</p>
-      </div>
-    </div>
-  </main>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MRSM Info TV</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="display-page">
+    <main class="screen-board" aria-label="MRSM information display">
+      <section class="display-main">
+        <div class="video-panel" aria-label="Video playlist">
+          <div class="panel-heading">
+            <span>MRSM NOW</span><span id="video-counter">0 / 0</span>
+          </div>
+          <div id="video-stage" class="video-stage">
+            <div class="empty-state">Loading display content...</div>
+          </div>
+          <div id="video-overlay" class="video-overlay">
+            <h1 id="slide-title">Information</h1>
+            <p id="slide-message">Loading...</p>
+          </div>
+        </div>
+        <div
+          id="timetable-slot"
+          class="timetable-slot"
+          aria-label="Timetable embed"
+        ></div>
+      </section>
+      <aside
+        id="announcement-list"
+        class="announcement-column"
+        aria-label="Announcements"
+      ></aside>
+      <footer class="news-ticker" aria-label="Latest news">
+        <span class="ticker-label">LATEST</span>
+        <div class="ticker-viewport">
+          <div id="ticker-content" class="ticker-content"></div>
+        </div>
+        <time id="clock" class="clock"></time>
+      </footer>
+    </main>
+    <script src="script.js"></script>
+  </body>
 </html>
