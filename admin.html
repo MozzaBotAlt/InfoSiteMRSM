@@ -19,6 +19,7 @@
         </div>
         <a class="button button-secondary" href="index.html">Open display</a>
       </header>
+      <p id="admin-status" class="admin-status" role="status" aria-live="polite"></p>
       <section class="admin-grid">
         <div class="admin-card">
           <p class="eyebrow">VIDEO PLAYLIST</p>
@@ -83,12 +84,11 @@
                 required
                 placeholder="https://example.com/poster.jpg" /></label
             ><label
-            ><label
               >Show for (seconds)<input
                 id="announcement-duration"
                 type="number"
                 min="5"
-                value="12"
+                value="5"
             /></label>
             <div class="button-row">
               <button class="button button-primary" type="submit">
@@ -108,10 +108,10 @@
           <h2>Ticker and timetable</h2>
           <form id="settings-form" class="settings-grid">
             <label class="wide-field"
-              >Scrolling ticker text<textarea
+              >Ticker announcements<textarea
                 id="footer-news"
                 rows="3"
-                placeholder="Text separated by dots or bullets"
+                placeholder="First announcement | Second announcement"
               ></textarea></label
             ><label
               >Scroll speed (seconds)<input

@@ -1,3 +1,26 @@
+function renderTickerAnnouncements(container, text) {
+  const announcements = String(text || '').split('|').map((item) => item.trim()).filter(Boolean);
+  const tickerNodes = [];
+
+  for (let copy = 0; copy < 2; copy += 1) {
+    announcements.forEach((announcement, index) => {
+      const item = document.createElement('span');
+      item.className = 'ticker-announcement';
+      item.textContent = announcement;
+      tickerNodes.push(item);
+
+      if (index < announcements.length - 1 || copy === 0) {
+        const pause = document.createElement('span');
+        pause.className = 'ticker-pause';
+        pause.textContent = '|';
+        tickerNodes.push(pause);
+      }
+    });
+  }
+
+  container.replaceChildren(...tickerNodes);
+}
+
 function youtubeVideoId(url) {
   try {
     const parsedUrl = new URL(url);
@@ -84,7 +107,7 @@ async function initFeedDisplayPage() {
     stage.replaceChildren();
     stage.dataset.template = String(slide.template);
     slidingText.dataset.template = String(slide.template);
-    slidingText.textContent = message;
+    renderTickerAnnouncements(slidingText, message);
     slidingText.hidden = !message;
     slidingText.style.animation = 'none';
     void slidingText.offsetWidth;
@@ -157,6 +180,7 @@ async function initFeedDisplayPage() {
 const BACKEND_API_BASE = "https://gapim.onrender.com/";
 const BACKEND_DATA_ENDPOINT = '/infositemrsm';
 const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
+let lastBackendError = null;
 
 function normalizeSlide(slide = {}) {
   return {
@@ -198,8 +222,10 @@ async function fetchBackendData() {
       throw new Error(`Backend request failed: ${response.status}`);
     }
 
+    lastBackendError = null;
     return await response.json();
   } catch (error) {
+    lastBackendError = error;
     console.warn('Backend fetch failed.', error);
     return null;
   }
@@ -209,7 +235,10 @@ function buildAnnouncementsFromSlides(slides) {
   return slides.map((slide, index) => ({
     title: slide.title || `Update ${index + 1}`,
     message: slide.message || '',
-    note: slide.caption || ''
+    note: slide.caption || '',
+    imageUrl: slide.imageUrl || '',
+    videoUrl: slide.videoUrl || '',
+    template: slide.template || 1
   }));
 }
 
@@ -269,7 +298,7 @@ function slidesFromFeed(data) {
 
 async function loadDisplayData() {
   const backendData = await fetchBackendData();
-  const slidingText = backendData?.slidingText || backendData?.['sliding text'] || backendData?.newsText || backendData?.settings?.slidingText || '';
+  const slidingText = backendData?.slidingText || backendData?.['sliding text'] || backendData?.newsText || backendData?.settings?.slidingText || backendData?.settings?.footerNews || '';
 
   return {
     slides: slidesFromFeed(backendData).flatMap((item) => {
@@ -287,213 +316,181 @@ async function loadDisplayData() {
   };
 }
 
-function saveSlides(slides, settings = {}) {
-  const normalizedSlides = slides.map(normalizeSlide);
-  void persistSlidesToBackend(normalizedSlides, settings);
-  return normalizedSlides;
-}
-
 async function persistSlidesToBackend(slides, settings = {}) {
-  if (!BACKEND_API_BASE.trim()) {
-    return;
-  }
+  const tickerText = String(settings.footerNews || settings.slidingText || '').trim();
+  const payload = {
+    slides: slides.map(normalizeSlide),
+    announcements: buildAnnouncementsFromSlides(slides),
+    settings: { ...settings, footerNews: tickerText, slidingText: tickerText },
+    slidingText: tickerText,
+    newsText: tickerText
+  };
+  let lastError;
 
-  try {
-    const response = await fetch(new URL(BACKEND_SAVE_ENDPOINT, BACKEND_API_BASE), {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        slides,
-        announcements: buildAnnouncementsFromSlides(slides),
-        settings
-      })
-    });
+  for (const method of ['PUT', 'POST']) {
+    try {
+      const response = await fetch(new URL(BACKEND_SAVE_ENDPOINT, BACKEND_API_BASE), {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
 
-    if (!response.ok) {
-      throw new Error(`Backend save failed: ${response.status}`);
+      if (response.ok) {
+        lastBackendError = null;
+        return;
+      }
+      lastError = new Error(`${method} save failed: HTTP ${response.status}`);
+    } catch (error) {
+      lastError = error;
     }
-  } catch (error) {
-    console.warn('Backend save failed.', error);
   }
+
+  lastBackendError = lastError;
+  throw lastError || new Error('Backend save failed.');
 }
 
 async function initAdminPage() {
-  const form = document.getElementById('slide-form');
+  const videoForm = document.getElementById('slide-form');
+  const announcementForm = document.getElementById('announcement-form');
+  const settingsForm = document.getElementById('settings-form');
   const slideList = document.getElementById('slide-list');
-  const exportBtn = document.getElementById('export-btn');
-  const importBtn = document.getElementById('import-btn');
+  const status = document.getElementById('admin-status');
   const importJson = document.getElementById('import-json');
-  const clearBtn = document.getElementById('clear-btn');
-  const titleInput = document.getElementById('slide-title');
-  const messageInput = document.getElementById('slide-message');
-  const imageInput = document.getElementById('slide-image');
-  const videoInput = document.getElementById('slide-video');
-  const durationInput = document.getElementById('slide-duration');
-  const accentColorInput = document.getElementById('accent-color');
-  const accentSoftColorInput = document.getElementById('accent-soft-color');
-  const backgroundColorInput = document.getElementById('background-color');
-  const surfaceColorInput = document.getElementById('surface-color');
-  const textColorInput = document.getElementById('text-color');
-  const mutedColorInput = document.getElementById('muted-color');
-  const titleSizeInput = document.getElementById('title-size');
-  const messageSizeInput = document.getElementById('message-size');
-  const overlayOpacityInput = document.getElementById('overlay-opacity');
+  const footerNewsInput = document.getElementById('footer-news');
+  const videoTitleInput = document.getElementById('slide-title');
+  const videoMessageInput = document.getElementById('slide-message');
+  const videoUrlInput = document.getElementById('slide-video');
+  const videoDurationInput = document.getElementById('slide-duration');
+  const announcementTitleInput = document.getElementById('announcement-title');
+  const announcementImageInput = document.getElementById('announcement-image');
+  const announcementSectionInput = document.getElementById('announcement-section');
+  const announcementDurationInput = document.getElementById('announcement-duration');
   const tickerDurationInput = document.getElementById('ticker-duration');
-  const announcementCountInput = document.getElementById('announcement-count');
-  const saveSettingsBtn = document.getElementById('save-settings-btn');
+  const timetableInput = document.getElementById('timetable-url');
 
   let slides = [];
-  let editIndex = null;
-  let currentSettings = {};
+  let settings = {};
+
+  function setStatus(message, state = '') {
+    status.textContent = message;
+    status.dataset.state = state;
+  }
 
   function updateSlideList() {
-    slideList.innerHTML = '';
-    if (!slides.length) {
-      slideList.innerHTML = '<p class="note">No slides yet. Add a new slide to begin.</p>';
-      return;
-    }
-
+    slideList.replaceChildren();
     slides.forEach((slide, index) => {
       const card = document.createElement('div');
       card.className = 'slide-card';
-
       const info = document.createElement('div');
       const title = document.createElement('strong');
       title.textContent = slide.title || `Slide ${index + 1}`;
-      const subtitle = document.createElement('span');
-      subtitle.textContent = slide.message ? slide.message.slice(0, 70) : 'No message provided.';
       const details = document.createElement('span');
-      details.textContent = `Duration: ${slide.duration || 12}s · ${slide.videoUrl ? 'Video' : 'Image'}`;
-      info.append(title, subtitle, details);
+      details.textContent = slide.videoUrl ? 'Video' : 'Picture';
+      info.append(title, details);
 
-      const actions = document.createElement('div');
-      actions.className = 'actions';
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'button button-secondary';
+      removeButton.textContent = 'Delete';
+      removeButton.addEventListener('click', async () => {
+        slides.splice(index, 1);
+        updateSlideList();
+        await saveFeed();
+      });
 
-      const editButton = document.createElement('button');
-      editButton.type = 'button';
-      editButton.className = 'button button-secondary';
-      editButton.textContent = 'Edit';
-      editButton.addEventListener('click', () => populateForm(index));
-
-      const deleteButton = document.createElement('button');
-      deleteButton.type = 'button';
-      deleteButton.className = 'button button-secondary';
-      deleteButton.textContent = 'Delete';
-      deleteButton.addEventListener('click', () => removeSlide(index));
-
-      actions.append(editButton, deleteButton);
-      card.append(info, actions);
+      card.append(info, removeButton);
       slideList.appendChild(card);
     });
+    if (!slides.length) {
+      const empty = document.createElement('p');
+      empty.className = 'note';
+      empty.textContent = 'No media items in the backend feed.';
+      slideList.appendChild(empty);
+    }
   }
 
-  function persistSlides() {
-    slides = saveSlides(slides);
+  async function saveFeed() {
+    setStatus('Saving to backend...');
+    try {
+      await persistSlidesToBackend(slides, settings);
+      setStatus('Saved to backend.', 'success');
+      updateSlideList();
+    } catch (error) {
+      setStatus(`Save failed: ${error.message}. Check the backend and CORS settings.`, 'error');
+    }
+  }
+
+  videoForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    slides.push(normalizeSlide({
+      title: videoTitleInput.value.trim(),
+      message: videoMessageInput.value.trim(),
+      videoUrl: videoUrlInput.value.trim(),
+      duration: Number(videoDurationInput.value) || 5
+    }));
+    videoForm.reset();
+    videoDurationInput.value = 5;
     updateSlideList();
-  }
+    await saveFeed();
+  });
 
-  function clearForm() {
-    form.reset();
-    editIndex = null;
-    durationInput.value = 12;
-  }
+  announcementForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const title = announcementTitleInput.value.trim();
+    slides.push(normalizeSlide({
+      title,
+      message: title,
+      imageUrl: announcementImageInput.value.trim(),
+      duration: Number(announcementDurationInput.value) || 5,
+      caption: announcementSectionInput.value
+    }));
+    announcementForm.reset();
+    announcementDurationInput.value = 5;
+    updateSlideList();
+    await saveFeed();
+  });
 
-  function populateForm(index) {
-    const slide = slides[index];
-    titleInput.value = slide.title || '';
-    messageInput.value = slide.message || '';
-    imageInput.value = slide.imageUrl || '';
-    videoInput.value = slide.videoUrl || '';
-    durationInput.value = slide.duration || 12;
-    editIndex = index;
-  }
-
-  function removeSlide(index) {
-    slides.splice(index, 1);
-    persistSlides();
-  }
-
-  function getSettingsFromForm() {
-    return {
-      accentColor: accentColorInput.value,
-      accentSoftColor: accentSoftColorInput.value,
-      backgroundColor: backgroundColorInput.value,
-      surfaceColor: surfaceColorInput.value,
-      textColor: textColorInput.value,
-      mutedColor: mutedColorInput.value,
-      slideTitleSize: titleSizeInput.value,
-      slideMessageSize: messageSizeInput.value,
-      overlayOpacity: overlayOpacityInput.value,
+  settingsForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    settings = {
+      ...settings,
+      footerNews: footerNewsInput.value.trim(),
+      slidingText: footerNewsInput.value.trim(),
       tickerDuration: tickerDurationInput.value,
-      announcementCount: announcementCountInput.value
+      timetableUrl: timetableInput.value.trim()
     };
-  }
+    await saveFeed();
+  });
 
-  function updateSettingsForm(settings = {}) {
-    const theme = { ...defaultSettings, ...settings };
-    accentColorInput.value = theme.accentColor;
-    accentSoftColorInput.value = theme.accentSoftColor;
-    backgroundColorInput.value = theme.backgroundColor;
-    surfaceColorInput.value = theme.surfaceColor;
-    textColorInput.value = theme.textColor;
-    mutedColorInput.value = theme.mutedColor;
-    titleSizeInput.value = theme.slideTitleSize;
-    messageSizeInput.value = theme.slideMessageSize;
-    overlayOpacityInput.value = theme.overlayOpacity;
-    tickerDurationInput.value = theme.tickerDuration;
-    announcementCountInput.value = theme.announcementCount;
-  }
-
-  function persistSettings() {
-    currentSettings = getSettingsFromForm();
-    saveSlides(slides, currentSettings);
-    applyDisplaySettings(currentSettings);
-  }
-
-  function importFromJson() {
+  document.getElementById('clear-btn').addEventListener('click', () => videoForm.reset());
+  document.getElementById('clear-announcement-btn').addEventListener('click', () => announcementForm.reset());
+  document.getElementById('export-btn').addEventListener('click', () => {
+    importJson.value = JSON.stringify({ slides, settings }, null, 2);
+  });
+  document.getElementById('import-btn').addEventListener('click', async () => {
     try {
       const parsed = JSON.parse(importJson.value);
-      if (!Array.isArray(parsed)) {
-        throw new Error('JSON must be an array of slides');
-      }
-      slides = parsed.map(normalizeSlide);
-      persistSlides();
-      importJson.value = '';
-      alert('Slides imported successfully.');
+      slides = slidesFromFeed(parsed).map(normalizeSlide);
+      settings = parsed.settings || settings;
+      updateSlideList();
+      await saveFeed();
     } catch (error) {
-      alert('Import failed. Paste valid slide JSON into the text area.');
+      setStatus(`Import failed: ${error.message}`, 'error');
     }
-  }
-
-  form.addEventListener('submit', (event) => {
-    event.preventDefault();
-    const newSlide = {
-      title: titleInput.value.trim(),
-      message: messageInput.value.trim(),
-      imageUrl: imageInput.value.trim(),
-      videoUrl: videoInput.value.trim(),
-      duration: Number(durationInput.value) || 12,
-      caption: ''
-    };
-
-    if (editIndex !== null && slides[editIndex]) {
-      slides[editIndex] = newSlide;
-    } else {
-      slides.push(newSlide);
-    }
-    persistSlides();
-    clearForm();
   });
 
-  exportBtn.addEventListener('click', () => {
-    importJson.value = JSON.stringify(slides, null, 2);
-  });
-
-  importBtn.addEventListener('click', importFromJson);
-  clearBtn.addEventListener('click', clearForm);
-
-  slides = await loadSlides();
+  const backendData = await fetchBackendData();
+  slides = slidesFromFeed(backendData).map(normalizeSlide);
+  settings = backendData?.settings || {};
+  footerNewsInput.value = backendData?.slidingText || backendData?.newsText || settings.slidingText || settings.footerNews || '';
+  tickerDurationInput.value = settings.tickerDuration || 24;
+  timetableInput.value = settings.timetableUrl || '';
   updateSlideList();
+  if (lastBackendError) {
+    setStatus(`Could not load backend feed: ${lastBackendError.message}`, 'error');
+  } else {
+    setStatus(`Loaded ${slides.length} media item${slides.length === 1 ? '' : 's'}.`, 'success');
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
