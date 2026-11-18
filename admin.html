@@ -40,7 +40,7 @@
                 id="slide-video"
                 type="url"
                 required
-                placeholder="https://example.com/video.mp4" /></label
+                placeholder="https://www.youtube.com/watch?v=..." /></label
             ><label
               >Play for at least (seconds)<input
                 id="slide-duration"
@@ -83,11 +83,6 @@
                 required
                 placeholder="https://example.com/poster.jpg" /></label
             ><label
-              >Open hyperlink<input
-                id="announcement-link"
-                type="url"
-                required
-                placeholder="https://example.com/details" /></label
             ><label
               >Show for (seconds)<input
                 id="announcement-duration"
@@ -129,14 +124,7 @@
                 id="timetable-url"
                 type="url"
                 placeholder="https://calendar.example.com/embed" /></label
-            ><label
-              >Timetable height (px)<input
-                id="timetable-height"
-                type="number"
-                min="100"
-                max="500"
-                value="210"
-            /></label>
+            >
             <div class="wide-field">
               <button class="button button-primary" type="submit">
                 Save display settings
@@ -144,8 +132,7 @@
             </div>
           </form>
           <p class="hint">
-            Use a public HTTPS embed URL. The timetable area is intentionally
-            smaller than the video area.
+            Use a public HTTPS embed URL.
           </p>
         </div>
         <div class="admin-card admin-wide">

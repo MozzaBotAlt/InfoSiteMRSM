@@ -7,40 +7,10 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body class="display-page">
-    <main class="screen-board" aria-label="MRSM information display">
-      <section class="display-main">
-        <div class="video-panel" aria-label="Video playlist">
-          <div class="panel-heading">
-            <span>MRSM NOW</span><span id="video-counter">0 / 0</span>
-          </div>
-          <div id="video-stage" class="video-stage">
-            <div class="empty-state">Loading display content...</div>
-          </div>
-          <div id="video-overlay" class="video-overlay">
-            <h1 id="slide-title">Information</h1>
-            <p id="slide-message">Loading...</p>
-          </div>
-        </div>
-        <div
-          id="timetable-slot"
-          class="timetable-slot"
-          aria-label="Timetable embed"
-        ></div>
-      </section>
-      <aside
-        id="announcement-list"
-        class="announcement-column"
-        aria-label="Announcements"
-      ></aside>
-      <footer class="news-ticker" aria-label="Latest news">
-        <span class="ticker-label">LATEST</span>
-        <div class="ticker-viewport">
-          <div id="ticker-content" class="ticker-content"></div>
-        </div>
-        <time id="clock" class="clock"></time>
-      </footer>
+    <main class="display-screen" aria-label="MRSM media display">
+      <div id="media-stage" class="media-stage"></div>
+      <div id="sliding-text" class="sliding-text" aria-live="off" hidden></div>
     </main>
     <script src="script.js"></script>
-    
   </body>
 </html>

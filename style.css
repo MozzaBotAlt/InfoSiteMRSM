@@ -560,3 +560,92 @@ textarea {
   }
 }
 
+html,
+body.display-page {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  color-scheme: dark;
+  background: #050709;
+}
+
+.display-screen,
+.media-stage {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #050709;
+}
+
+.media-stage {
+  display: grid;
+  place-items: center;
+}
+
+.media-stage img,
+.media-stage video,
+.media-stage iframe,
+.media-stage > div {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.media-stage img,
+.media-stage video {
+  object-fit: contain;
+}
+
+.media-stage > div {
+  position: absolute;
+  inset: 0;
+}
+
+.sliding-text {
+  position: fixed;
+  z-index: 3;
+  left: 0;
+  bottom: 5vh;
+  width: max-content;
+  max-width: none;
+  padding: 0.75rem 1.5rem;
+  overflow: hidden;
+  background: rgba(3, 8, 12, 0.82);
+  color: #fff;
+  font-size: clamp(1.1rem, 2.6vw, 2.4rem);
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: announcement-scroll 24s linear infinite;
+}
+
+.sliding-text[hidden] {
+  display: none;
+}
+
+@keyframes announcement-scroll {
+  from {
+    transform: translateX(100vw);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+.sliding-text[data-template="1"] { top: auto; right: auto; bottom: 5vh; left: 0; }
+.sliding-text[data-template="2"] { top: 5vh; right: auto; bottom: auto; left: 0; }
+.sliding-text[data-template="3"] { top: auto; right: 0; bottom: 5vh; left: auto; }
+.sliding-text[data-template="4"] { top: 5vh; right: 0; bottom: auto; left: auto; }
+.sliding-text[data-template="5"] { top: 45%; right: auto; bottom: auto; left: 0; }
+.sliding-text[data-template="6"] { top: 45%; right: 0; bottom: auto; left: auto; }
+.sliding-text[data-template="7"] { top: 25%; right: auto; bottom: auto; left: 0; }
+.sliding-text[data-template="8"] { top: 25%; right: 0; bottom: auto; left: auto; }
+.sliding-text[data-template="9"] { top: auto; right: 0; bottom: 18vh; left: auto; }
+.sliding-text[data-template="10"] { top: auto; right: 0; bottom: 0; left: 0; text-align: center; }
+

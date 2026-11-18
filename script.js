@@ -1,25 +1,174 @@
-const BACKEND_API_BASE = "https://lvm-backend-j0ws.onrender.com/"; // Set your backend URL here, for example: 'http://localhost:4000'
+function youtubeVideoId(url) {
+  try {
+    const parsedUrl = new URL(url);
+    const host = parsedUrl.hostname.replace(/^www\./, '');
+    let videoId = '';
+
+    if (host === 'youtu.be') {
+      videoId = parsedUrl.pathname.slice(1);
+    } else if (host === 'youtube.com' || host === 'm.youtube.com' || host === 'youtube-nocookie.com') {
+      videoId = parsedUrl.searchParams.get('v') || parsedUrl.pathname.match(/\/(?:embed|shorts|live)\/([^/?]+)/)?.[1] || '';
+    }
+
+    return /^[\w-]{11}$/.test(videoId) ? videoId : '';
+  } catch {
+    return '';
+  }
+}
+
+function loadYouTubeApi() {
+  if (window.YT?.Player) {
+    return Promise.resolve(window.YT);
+  }
+  if (window.youtubeApiPromise) {
+    return window.youtubeApiPromise;
+  }
+
+  window.youtubeApiPromise = new Promise((resolve, reject) => {
+    const previousCallback = window.onYouTubeIframeAPIReady;
+    const apiScript = document.createElement('script');
+    apiScript.src = 'https://www.youtube.com/iframe_api';
+    apiScript.onerror = reject;
+    window.onYouTubeIframeAPIReady = () => {
+      if (typeof previousCallback === 'function') {
+        previousCallback();
+      }
+      resolve(window.YT);
+    };
+    document.head.appendChild(apiScript);
+  });
+
+  return window.youtubeApiPromise;
+}
+
+async function initFeedDisplayPage() {
+  const stage = document.getElementById('media-stage');
+  const slidingText = document.getElementById('sliding-text');
+  const displayData = await loadDisplayData();
+  const slides = displayData.slides;
+  let currentIndex = 0;
+  let playbackId = 0;
+  let timerId = null;
+  let youtubePlayer = null;
+
+  function advance(playback) {
+    if (playback !== playbackId) {
+      return;
+    }
+    window.clearTimeout(timerId);
+    if (youtubePlayer) {
+      youtubePlayer.destroy();
+      youtubePlayer = null;
+    }
+    currentIndex = (currentIndex + 1) % slides.length;
+    showCurrent();
+  }
+
+  function showCurrent() {
+    if (!slides.length) {
+      stage.replaceChildren();
+      slidingText.hidden = true;
+      return;
+    }
+
+    const playback = ++playbackId;
+    const slide = slides[currentIndex];
+    const message = slide.message || displayData.slidingText;
+    const videoId = youtubeVideoId(slide.videoUrl);
+    window.clearTimeout(timerId);
+    if (youtubePlayer) {
+      youtubePlayer.destroy();
+      youtubePlayer = null;
+    }
+
+    stage.replaceChildren();
+    stage.dataset.template = String(slide.template);
+    slidingText.dataset.template = String(slide.template);
+    slidingText.textContent = message;
+    slidingText.hidden = !message;
+    slidingText.style.animation = 'none';
+    void slidingText.offsetWidth;
+    slidingText.style.animation = '';
+
+    if (videoId) {
+      const mount = document.createElement('div');
+      mount.id = 'youtube-player';
+      stage.appendChild(mount);
+
+      loadYouTubeApi().then((youtube) => {
+        if (playback !== playbackId) {
+          return;
+        }
+        youtubePlayer = new youtube.Player(mount, {
+          videoId,
+          playerVars: {
+            autoplay: 1,
+            mute: 1,
+            controls: 0,
+            disablekb: 1,
+            fs: 0,
+            playsinline: 1,
+            rel: 0
+          },
+          events: {
+                onReady: (event) => {
+              event.target.mute();
+              event.target.playVideo();
+            },
+            onStateChange: (event) => {
+              if (event.data === youtube.PlayerState.ENDED) {
+                advance(playback);
+              }
+            },
+                onError: (event) => console.warn('YouTube playback failed.', event.data)
+          }
+        });
+      }).catch((error) => console.warn('Unable to load YouTube playback.', error));
+      return;
+    }
+
+    if (slide.videoUrl && !slide.imageUrl) {
+      const video = document.createElement('video');
+      video.src = slide.videoUrl;
+      video.autoplay = true;
+      video.muted = true;
+      video.playsInline = true;
+      video.addEventListener('ended', () => advance(playback), { once: true });
+      stage.appendChild(video);
+      void video.play().catch(() => {});
+      return;
+    }
+
+    if (slide.imageUrl) {
+      const image = document.createElement('img');
+      image.className = `announcement-image template-${slide.template}`;
+      image.src = slide.imageUrl;
+      image.alt = '';
+      image.draggable = false;
+      stage.appendChild(image);
+    }
+
+    timerId = window.setTimeout(() => advance(playback), 5000);
+  }
+
+  showCurrent();
+}
+
+const BACKEND_API_BASE = "https://gapim.onrender.com/";
 const BACKEND_DATA_ENDPOINT = '/infositemrsm';
 const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
 
 function normalizeSlide(slide = {}) {
   return {
     title: slide.title || '',
-    message: slide.message || '',
-    imageUrl: slide.imageUrl || '',
-    videoUrl: slide.videoUrl || '',
-    duration: Number(slide.duration) || 12,
-    caption: slide.caption || ''
+    message: slide.slidingText || slide['sliding text'] || slide.message || slide.text || '',
+    imageUrl: slide.imageUrl || slide.picture || slide.image || '',
+    videoUrl: slide.videoUrl || slide.youtubeUrl || slide.youtube || slide.video || '',
+    duration: 5,
+    caption: slide.caption || '',
+    template: Math.min(10, Math.max(1, Number(slide.template) || 1))
   };
 }
-
-const defaultAnnouncements = [
-  {
-    title: 'Welcome',
-    message: 'Display is ready. Configure content by assigning BACKEND_API_BASE and a backend endpoint.',
-    note: 'Backend feeds are required for this site to show content.'
-  }
-];
 
 const defaultSettings = {
   accentColor: '#6cc3ff',
@@ -41,7 +190,7 @@ async function fetchBackendData() {
   }
 
   try {
-    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_DATA_ENDPOINT}`, {
+    const response = await fetch(new URL(BACKEND_DATA_ENDPOINT, BACKEND_API_BASE), {
       cache: 'no-store'
     });
 
@@ -81,6 +230,9 @@ function applyDisplaySettings(settings = {}) {
 async function loadSlides() {
   if (BACKEND_API_BASE.trim()) {
     const backendData = await fetchBackendData();
+    if (Array.isArray(backendData)) {
+      return backendData.map(normalizeSlide);
+    }
     if (backendData && Array.isArray(backendData.slides)) {
       return backendData.slides.map(normalizeSlide);
     }
@@ -89,22 +241,49 @@ async function loadSlides() {
   return [];
 }
 
-async function loadDisplayData() {
-  const backendData = await fetchBackendData();
-  if (backendData && Array.isArray(backendData.slides) && backendData.slides.length) {
-    return {
-      slides: backendData.slides.map(normalizeSlide),
-      announcements: Array.isArray(backendData.announcements)
-        ? backendData.announcements
-        : buildAnnouncementsFromSlides(backendData.slides),
-      settings: backendData.settings || {}
-    };
+function slidesFromFeed(data) {
+  if (Array.isArray(data)) {
+    return data;
   }
 
+  for (const key of ['slides', 'items', 'pictures', 'announcements']) {
+    if (Array.isArray(data?.[key])) {
+      return data[key];
+    }
+  }
+
+  if (!data || typeof data !== 'object') {
+    return [];
+  }
+
+  const message = data.slidingText || data['sliding text'] || data.message || data.text || '';
+  const videoUrl = data.videoUrl || data.youtubeUrl || data.youtube || data.video || '';
+  const imageUrl = data.imageUrl || data.picture || data.image || '';
+  const template = data.template || 1;
+
+  return [
+    ...(videoUrl ? [{ videoUrl, message, template }] : []),
+    ...(imageUrl ? [{ imageUrl, message, template }] : [])
+  ];
+}
+
+async function loadDisplayData() {
+  const backendData = await fetchBackendData();
+  const slidingText = backendData?.slidingText || backendData?.['sliding text'] || backendData?.newsText || backendData?.settings?.slidingText || '';
+
   return {
-    slides: [],
-    announcements: defaultAnnouncements,
-    settings: {}
+    slides: slidesFromFeed(backendData).flatMap((item) => {
+      const slide = normalizeSlide(item);
+      if (slide.videoUrl && slide.imageUrl) {
+        return [
+          { ...slide, imageUrl: '' },
+          { ...slide, videoUrl: '' }
+        ];
+      }
+      return [slide];
+    }),
+    slidingText,
+    settings: backendData?.settings || {}
   };
 }
 
@@ -120,7 +299,7 @@ async function persistSlidesToBackend(slides, settings = {}) {
   }
 
   try {
-    const response = await fetch(`${BACKEND_API_BASE}${BACKEND_SAVE_ENDPOINT}`, {
+    const response = await fetch(new URL(BACKEND_SAVE_ENDPOINT, BACKEND_API_BASE), {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -136,148 +315,6 @@ async function persistSlidesToBackend(slides, settings = {}) {
   } catch (error) {
     console.warn('Backend save failed.', error);
   }
-}
-
-function formatClock(date) {
-  return date.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-async function initDisplayPage() {
-  const slideMedia = document.getElementById('slide-media');
-  const slideTitle = document.getElementById('slide-title');
-  const slideMessage = document.getElementById('slide-message');
-  const slideCaption = document.getElementById('slide-caption');
-  const announcementList = document.getElementById('announcement-list');
-  const tickerContent = document.getElementById('ticker-content');
-  const clock = document.getElementById('clock');
-
-  const displayData = await loadDisplayData();
-  let slides = displayData.slides;
-  let announcements = displayData.announcements;
-  let currentSettings = displayData.settings || {};
-  let currentIndex = 0;
-  let timerId = null;
-
-  function updateClock() {
-    clock.textContent = formatClock(new Date());
-  }
-
-  function updateTicker(slide) {
-    const parts = [
-      slide.title || 'Information',
-      slide.message || '',
-      slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`
-    ].filter(Boolean);
-    const text = `${parts.join(' • ')} • ${parts.join(' • ')}`;
-    tickerContent.innerHTML = `<span>${text}</span><span>${text}</span>`;
-  }
-
-  function renderSlide(slide) {
-    slideTitle.textContent = slide.title || 'Information';
-    slideMessage.textContent = slide.message || 'Open admin.html to edit the slide content.';
-    slideCaption.textContent = slide.caption || `Slide ${currentIndex + 1} of ${slides.length}`;
-    updateTicker(slide);
-    slideMedia.innerHTML = '';
-
-    if (slide.videoUrl) {
-      const video = document.createElement('video');
-      video.src = slide.videoUrl;
-      video.autoplay = true;
-      video.playsInline = true;
-      video.muted = true;
-      video.loop = true;
-      video.setAttribute('aria-hidden', 'true');
-      video.style.width = '100%';
-      video.style.height = '100%';
-      video.style.objectFit = 'cover';
-      video.onerror = () => {
-        slideMedia.textContent = 'Unable to load video. Please check the URL in admin.html.';
-      };
-      slideMedia.appendChild(video);
-    } else {
-      const img = document.createElement('img');
-      img.src = slide.imageUrl || 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1600&q=80';
-      img.alt = slide.title || 'Slide background image';
-      img.onerror = () => {
-        slideMedia.style.backgroundImage = 'linear-gradient(180deg, #111827, #020814)';
-      };
-      slideMedia.appendChild(img);
-    }
-  }
-
-  function renderAnnouncements(slides, activeIndex) {
-    if (!Array.isArray(slides) || !slides.length) {
-      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcement previews available.</strong></div>';
-      return;
-    }
-
-    const firstSlide = slides[activeIndex] || slides[0];
-    const secondSlide = slides[(activeIndex + 1) % slides.length] || slides[0];
-    const previewSlides = [firstSlide, secondSlide];
-
-    announcementList.innerHTML = '';
-    previewSlides.forEach((slide, index) => {
-      const card = document.createElement('div');
-      card.className = 'announcement-card';
-      if (slide.imageUrl) {
-        card.dataset-image = slide.imageUrl;
-        card.style.backgroundImage = `url('${slide.imageUrl}')`;
-      }
-
-      const previewLabel = document.createElement('span');
-      previewLabel.className = 'announcement-preview-label';
-      previewLabel.textContent = index === 0 ? 'Now previewing' : 'Next preview';
-
-      const title = document.createElement('strong');
-      title.textContent = slide.title || `Slide ${activeIndex + index + 1}`;
-
-      const message = document.createElement('p');
-      message.textContent = slide.message || 'No message available.';
-
-      card.append(previewLabel, title, message);
-
-      if (slide.caption) {
-        const note = document.createElement('div');
-        note.className = 'announcement-meta';
-        note.textContent = slide.caption;
-        card.append(note);
-      }
-
-      announcementList.appendChild(card);
-    });
-  }
-
-  function showCurrent() {
-    if (!slides.length) {
-      slideTitle.textContent = BACKEND_API_BASE.trim()
-        ? 'Backend content unavailable'
-        : 'Backend URL not configured';
-      slideMessage.textContent = BACKEND_API_BASE.trim()
-        ? 'Unable to fetch slides from backend. Check your backend server and URL.'
-        : 'Open script.js and set BACKEND_API_BASE to your backend URL.';
-      slideCaption.textContent = '';
-      announcementList.innerHTML = '<div class="announcement-card"><strong>No announcements available.</strong></div>';
-      return;
-    }
-    if (currentIndex >= slides.length) {
-      currentIndex = 0;
-    }
-    renderSlide(slides[currentIndex]);
-    renderAnnouncements(slides, currentIndex);
-    const duration = Math.max(5, slides[currentIndex].duration || 12) * 1000;
-    timerId = window.setTimeout(() => {
-      currentIndex = (currentIndex + 1) % slides.length;
-      showCurrent();
-    }, duration);
-  }
-
-  updateClock();
-  applyDisplaySettings(currentSettings);
-  showCurrent();
-  window.setInterval(updateClock, 60_000);
 }
 
 async function initAdminPage() {
@@ -461,7 +498,7 @@ async function initAdminPage() {
 
 window.addEventListener('DOMContentLoaded', () => {
   if (document.body.classList.contains('display-page')) {
-    void initDisplayPage();
+    void initFeedDisplayPage();
   }
   if (document.body.classList.contains('admin-page')) {
     void initAdminPage();
