@@ -89,9 +89,32 @@ async function initFeedDisplayPage() {
 
   function showCurrent() {
     if (!slides.length) {
-      stage.replaceChildren();
+      const emptyState = document.getElementById('empty-state');
+      stage.replaceChildren(emptyState);
+      emptyState.hidden = false;
       slidingText.hidden = true;
+
+      const clock = document.getElementById('empty-clock');
+      if (clock) {
+        clock.textContent = new Intl.DateTimeFormat(undefined, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        }).format(new Date());
+        window.setInterval(() => {
+          clock.textContent = new Intl.DateTimeFormat(undefined, {
+            weekday: 'short',
+            hour: '2-digit',
+            minute: '2-digit'
+          }).format(new Date());
+        }, 30000);
+      }
       return;
+    }
+
+    const emptyState = document.getElementById('empty-state');
+    if (emptyState) {
+      emptyState.hidden = true;
     }
 
     const playback = ++playbackId;
@@ -208,21 +231,43 @@ const defaultSettings = {
   announcementCount: '6'
 };
 
+const BACKEND_REQUEST_TIMEOUT_MS = 35000;
+
+async function fetchWithTimeout(url, options = {}) {
+  const controller = new AbortController();
+  const timeoutId = window.setTimeout(() => controller.abort(), BACKEND_REQUEST_TIMEOUT_MS);
+
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } catch (error) {
+    if (error.name === 'AbortError') {
+      throw new Error(`Backend did not respond within ${BACKEND_REQUEST_TIMEOUT_MS / 1000} seconds`);
+    }
+    throw error;
+  } finally {
+    window.clearTimeout(timeoutId);
+  }
+}
+
 async function fetchBackendData() {
   if (!BACKEND_API_BASE.trim()) {
     return null;
   }
 
   try {
-    const response = await fetch(new URL(BACKEND_DATA_ENDPOINT, BACKEND_API_BASE), {
-      cache: 'no-store'
+    const response = await fetchWithTimeout(new URL(BACKEND_DATA_ENDPOINT, BACKEND_API_BASE), {
+      cache: 'no-store',
+      headers: { Accept: 'application/json' }
     });
 
     if (!response.ok) {
-      throw new Error(`Backend request failed: ${response.status}`);
+      throw new Error(`Backend request failed: HTTP ${response.status}`);
     }
 
     lastBackendError = null;
+    if (response.status === 204) {
+      return null;
+    }
     return await response.json();
   } catch (error) {
     lastBackendError = error;
@@ -329,17 +374,47 @@ async function persistSlidesToBackend(slides, settings = {}) {
 
   for (const method of ['PUT', 'POST']) {
     try {
-      const response = await fetch(new URL(BACKEND_SAVE_ENDPOINT, BACKEND_API_BASE), {
+      const response = await fetchWithTimeout(new URL(BACKEND_SAVE_ENDPOINT, BACKEND_API_BASE), {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        cache: 'no-store',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify(payload)
       });
 
       if (response.ok) {
-        lastBackendError = null;
-        return;
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+        const savedData = await fetchBackendData();
+        if (savedData !== null) {
+          const savedSlides = Array.isArray(savedData)
+            ? savedData.map(normalizeSlide)
+            : Array.isArray(savedData.slides)
+              ? savedData.slides.map(normalizeSlide)
+              : [];
+          const contentMatches = JSON.stringify(savedSlides.map((slide) => ({
+            title: slide.title,
+            message: slide.message,
+            imageUrl: slide.imageUrl,
+            videoUrl: slide.videoUrl,
+            template: slide.template
+          }))) === JSON.stringify(payload.slides.map((slide) => ({
+            title: slide.title,
+            message: slide.message,
+            imageUrl: slide.imageUrl,
+            videoUrl: slide.videoUrl,
+            template: slide.template
+          })));
+
+          if (contentMatches) {
+            lastBackendError = null;
+            return;
+          }
+          lastError = new Error(`${method} returned success but the database did not contain the submitted content`);
+        } else {
+          lastError = new Error(`${method} returned success but the saved feed could not be read back`);
+        }
+      } else {
+        lastError = new Error(`${method} save failed: HTTP ${response.status}`);
       }
-      lastError = new Error(`${method} save failed: HTTP ${response.status}`);
     } catch (error) {
       lastError = error;
     }

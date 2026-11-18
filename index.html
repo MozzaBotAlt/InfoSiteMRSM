@@ -8,7 +8,41 @@
   </head>
   <body class="display-page">
     <main class="display-screen" aria-label="MRSM media display">
-      <div id="media-stage" class="media-stage"></div>
+      <div id="media-stage" class="media-stage">
+        <section id="empty-state" class="display-empty-state" aria-live="polite">
+          <header class="empty-brand">
+            <div class="empty-brand-mark">MRSM</div>
+            <div>
+              <p class="empty-eyebrow">INFORMATION DISPLAY</p>
+              <h1>MRSM Information Centre</h1>
+            </div>
+          </header>
+
+          <div class="empty-layout">
+            <section class="empty-main-section">
+              <p class="empty-eyebrow">TODAY'S NOTICE</p>
+              <h2>No announcements published</h2>
+              <p>New videos, pictures, and announcements will appear here as soon as they are added.</p>
+            </section>
+
+            <aside class="empty-side-section">
+              <section>
+                <p class="empty-eyebrow">STATUS</p>
+                <p class="empty-status"><span></span> Awaiting backend content</p>
+              </section>
+              <section>
+                <p class="empty-eyebrow">TIMETABLE</p>
+                <p>Class timetable updates will be shown here.</p>
+              </section>
+            </aside>
+          </div>
+
+          <footer class="empty-footer">
+            <p>MRSM Information System</p>
+            <time id="empty-clock"></time>
+          </footer>
+        </section>
+      </div>
       <div id="sliding-text" class="sliding-text" aria-live="off" hidden></div>
     </main>
     <script src="script.js"></script>
