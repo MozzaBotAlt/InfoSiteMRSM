@@ -39,6 +39,52 @@ function youtubeVideoId(url) {
   }
 }
 
+function findPictureForSection(slides, section) {
+  return slides.find((slide) => (
+    slide.imageUrl && String(slide.caption || '').trim().toLowerCase() === section
+  )) || null;
+}
+
+function renderPictureAnnouncementRail(slides) {
+  const maktab = findPictureForSection(slides, 'maktab');
+  const bwp = findPictureForSection(slides, 'bwp');
+
+  const rail = document.createElement('aside');
+  rail.className = 'picture-announcement-rail live-picture-rail';
+
+  for (const [section, label, slide] of [
+    ['maktab', 'MAKTAB ANNOUNCEMENT', maktab],
+    ['bwp', 'BWP ANNOUNCEMENT', bwp]
+  ]) {
+    const card = document.createElement('section');
+    card.className = 'picture-announcement-card';
+
+    const heading = document.createElement('p');
+    heading.className = 'empty-eyebrow';
+    heading.textContent = label;
+
+    const frame = document.createElement('div');
+    frame.className = 'picture-announcement-frame';
+
+    if (slide) {
+      const image = document.createElement('img');
+      image.src = slide.imageUrl;
+      image.alt = `${label} picture`;
+      frame.appendChild(image);
+    } else {
+      const placeholder = document.createElement('span');
+      placeholder.className = 'picture-announcement-placeholder';
+      placeholder.textContent = `${section.toUpperCase()} PICTURE`;
+      frame.appendChild(placeholder);
+    }
+
+    card.append(heading, frame);
+    rail.appendChild(card);
+  }
+
+  return rail;
+}
+
 function loadYouTubeApi() {
   if (window.YT?.Player) {
     return Promise.resolve(window.YT);
@@ -127,7 +173,7 @@ async function initFeedDisplayPage() {
       youtubePlayer = null;
     }
 
-    stage.replaceChildren();
+    stage.replaceChildren(renderPictureAnnouncementRail(slides));
     stage.dataset.template = String(slide.template);
     slidingText.dataset.template = String(slide.template);
     renderTickerAnnouncements(slidingText, message);
