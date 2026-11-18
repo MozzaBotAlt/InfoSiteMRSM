@@ -96,7 +96,7 @@ async function initFeedDisplayPage() {
 
     const playback = ++playbackId;
     const slide = slides[currentIndex];
-    const message = slide.message || displayData.slidingText;
+    const message = displayData.slidingText || slide.message;
     const videoId = youtubeVideoId(slide.videoUrl);
     window.clearTimeout(timerId);
     if (youtubePlayer) {

@@ -11,7 +11,12 @@
     }
   ],
   "announcements": [],
+  "slidingText": "",
+  "newsText": "",
   "settings": {
-    "slidingText": ""
+    "slidingText": "",
+    "footerNews": "",
+    "tickerDuration": "24",
+    "timetableUrl": ""
   }
 }
