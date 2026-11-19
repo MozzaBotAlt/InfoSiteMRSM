@@ -1,6 +1,8 @@
 function renderTickerAnnouncements(container, text) {
   const announcements = String(text || '').split('|').map((item) => item.trim()).filter(Boolean);
   const tickerNodes = [];
+  const track = document.createElement('div');
+  track.className = 'ticker-track';
 
   for (let copy = 0; copy < 2; copy += 1) {
     announcements.forEach((announcement, index) => {
@@ -18,7 +20,8 @@ function renderTickerAnnouncements(container, text) {
     });
   }
 
-  container.replaceChildren(...tickerNodes);
+  track.replaceChildren(...tickerNodes);
+  container.replaceChildren(track);
 }
 
 function youtubeVideoId(url) {

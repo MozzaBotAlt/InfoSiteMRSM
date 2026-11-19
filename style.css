@@ -929,6 +929,341 @@ body.admin-page {
   font-size: 1.2rem;
 }
 
+body.display-page {
+  color-scheme: light;
+  color: #233a32;
+  background: #e9e9e1;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body.display-page .display-screen {
+  inset: 10px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  background: #f5f4ed;
+}
+
+body.display-page .media-stage {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  background: #1c2924;
+}
+
+body.display-page .media-stage > img,
+body.display-page .media-stage > video {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  object-fit: cover;
+}
+
+body.display-page .media-stage:has(.live-picture-rail) > img,
+body.display-page .media-stage:has(.live-picture-rail) > video {
+  width: calc(100% - clamp(210px, 25vw, 350px) - 12px);
+}
+
+body.display-page .media-stage:has(.live-picture-rail) > #youtube-player {
+  inset: 0 clamp(210px, 25vw, 350px) 0 0;
+  width: auto;
+  height: auto;
+}
+
+body.display-page .live-picture-rail {
+  inset: 10px 10px 10px auto;
+  width: clamp(210px, 25vw, 350px);
+  height: auto;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid rgba(43, 69, 58, 0.16);
+  border-radius: 5px;
+  background: #f5f4ed;
+  color: #233a32;
+}
+
+body.display-page .live-picture-rail .picture-announcement-card {
+  min-height: 0;
+  padding: 10px;
+  border: 1px solid rgba(43, 69, 58, 0.13);
+  border-radius: 4px;
+  background: #eeeee6;
+}
+
+body.display-page .live-picture-rail .picture-announcement-card + .picture-announcement-card {
+  border-top: 1px solid rgba(43, 69, 58, 0.13);
+}
+
+body.display-page .live-picture-rail .empty-eyebrow,
+body.display-page .empty-eyebrow {
+  color: #567363;
+  font-family: "Segoe UI", sans-serif;
+  letter-spacing: 0.14em;
+}
+
+body.display-page .live-picture-rail .picture-announcement-frame {
+  margin-top: 8px;
+  border-color: rgba(43, 69, 58, 0.17);
+  border-radius: 3px;
+  background: #e6e7dd;
+}
+
+body.display-page .picture-announcement-placeholder {
+  color: #66776d;
+  font-family: "Segoe UI", sans-serif;
+}
+
+body.display-page .sliding-text {
+  position: fixed;
+  z-index: 9;
+  left: 20px;
+  right: auto;
+  bottom: 20px;
+  top: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: min(760px, calc(100vw - 40px));
+  max-width: calc(100vw - 40px);
+  min-height: 52px;
+  padding: 10px 16px;
+  overflow: hidden;
+  border: 1px solid rgba(250, 247, 232, 0.22);
+  border-radius: 5px;
+  background: #28483d;
+  box-shadow: 0 8px 22px rgba(20, 35, 29, 0.22);
+  color: #faf8ef;
+  font-family: "Segoe UI", sans-serif;
+  font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+  pointer-events: none;
+  animation: none;
+}
+
+body.display-page .sliding-text::before {
+  content: "MAKLUMAN";
+  flex: 0 0 auto;
+  padding-right: 12px;
+  border-right: 1px solid rgba(250, 247, 232, 0.36);
+  color: #d7c58d;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+}
+
+body.display-page .ticker-track {
+  display: flex;
+  flex: 0 0 auto;
+  width: max-content;
+  animation: ticker-marquee 24s linear infinite;
+}
+
+body.display-page .ticker-announcement {
+  flex: 0 0 auto;
+  padding-right: 8px;
+}
+
+body.display-page .ticker-pause {
+  flex: 0 0 auto;
+  padding: 0 14px;
+  color: #d7c58d;
+}
+
+body.display-page .sliding-text[data-template="2"] {
+  top: 20px;
+  bottom: auto;
+}
+
+body.display-page .sliding-text[data-template="3"],
+body.display-page .sliding-text[data-template="4"],
+body.display-page .sliding-text[data-template="6"],
+body.display-page .sliding-text[data-template="8"],
+body.display-page .sliding-text[data-template="9"] {
+  right: 20px;
+  left: auto;
+}
+
+body.display-page .sliding-text[data-template="4"] {
+  top: 20px;
+  bottom: auto;
+}
+
+body.display-page .sliding-text[data-template="5"] {
+  top: 45%;
+  bottom: auto;
+}
+
+body.display-page .sliding-text[data-template="6"] {
+  top: 45%;
+  bottom: auto;
+}
+
+body.display-page .sliding-text[data-template="7"],
+body.display-page .sliding-text[data-template="8"] {
+  top: 25%;
+  bottom: auto;
+}
+
+body.display-page .sliding-text[data-template="9"] {
+  bottom: 18vh;
+  top: auto;
+}
+
+body.display-page .sliding-text[data-template="10"] {
+  right: 20px;
+  left: 20px;
+  width: auto;
+  max-width: none;
+  justify-content: center;
+}
+
+body.display-page:has(.live-picture-rail) .sliding-text {
+  max-width: calc(100vw - clamp(210px, 25vw, 350px) - 50px);
+}
+
+body.display-page .display-empty-state {
+  gap: clamp(8px, 1.5vh, 18px);
+  padding: clamp(16px, 3vw, 40px);
+  color: #233a32;
+  background:
+    linear-gradient(135deg, rgba(63, 101, 80, 0.07), transparent 42%),
+    #f5f4ed;
+}
+
+body.display-page .empty-brand {
+  gap: 14px;
+  padding-bottom: 12px;
+  border-color: rgba(43, 69, 58, 0.18);
+}
+
+body.display-page .empty-brand-mark {
+  width: clamp(48px, 6vw, 72px);
+  border: 1px solid #456b57;
+  border-radius: 50%;
+  color: #315343;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+}
+
+body.display-page .empty-eyebrow {
+  margin: 5px 0;
+}
+
+body.display-page .empty-brand h1 {
+  margin: 5px 0;
+  color: #263d33;
+  font-size: clamp(1.5rem, 3vw, 2.8rem);
+  font-weight: 500;
+}
+
+body.display-page .empty-layout {
+  grid-template-columns: minmax(0, 1.7fr) minmax(220px, 0.8fr);
+  gap: clamp(8px, 1.5vw, 18px);
+}
+
+body.display-page .empty-main-section,
+body.display-page .empty-side-section {
+  border: 1px solid rgba(43, 69, 58, 0.16);
+  border-radius: 5px;
+  background: #eeeee6;
+}
+
+body.display-page .empty-main-section {
+  padding: clamp(16px, 3vw, 42px);
+}
+
+body.display-page .empty-main-section h2 {
+  margin: 8px 0;
+  color: #2b483b;
+  font-size: clamp(2rem, 4.8vw, 4.6rem);
+  font-weight: 500;
+  line-height: 1.04;
+}
+
+body.display-page .empty-main-section > p:last-child {
+  margin: 10px 0 0;
+  color: #63736a;
+  font-family: "Segoe UI", sans-serif;
+  font-size: clamp(0.95rem, 1.35vw, 1.15rem);
+  line-height: 1.55;
+}
+
+body.display-page .empty-side-section > section {
+  padding: clamp(10px, 1.5vw, 18px);
+}
+
+body.display-page .empty-side-section > section + section {
+  border-color: rgba(43, 69, 58, 0.16);
+}
+
+body.display-page .empty-side-section > section p:last-child {
+  color: #63736a;
+}
+
+body.display-page .picture-announcement-frame {
+  border-color: rgba(43, 69, 58, 0.16);
+  border-radius: 3px;
+  background: #e6e7dd;
+}
+
+body.display-page .empty-footer {
+  gap: 10px;
+  color: #68776e;
+  font-family: "Segoe UI", sans-serif;
+}
+
+@keyframes ticker-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 720px) {
+  body.display-page .live-picture-rail {
+    width: clamp(120px, 30vw, 210px);
+  }
+
+  body.display-page .media-stage:has(.live-picture-rail) > img,
+  body.display-page .media-stage:has(.live-picture-rail) > video {
+    width: calc(100% - clamp(120px, 30vw, 210px) - 10px);
+  }
+
+  body.display-page .media-stage:has(.live-picture-rail) > #youtube-player {
+    right: clamp(120px, 30vw, 210px);
+  }
+
+  body.display-page:has(.live-picture-rail) .sliding-text {
+    max-width: calc(100vw - clamp(120px, 30vw, 210px) - 40px);
+  }
+
+  body.display-page .empty-layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  body.display-page .empty-side-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: none;
+  }
+
+  body.display-page .empty-side-section > section + section {
+    border-top: 0;
+    border-left: 1px solid rgba(43, 69, 58, 0.16);
+  }
+
+  body.display-page .picture-announcement-frame {
+    height: clamp(56px, 11vh, 100px);
+  }
+}
+
 .admin-card form {
   display: grid;
   gap: 0.9rem;
