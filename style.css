@@ -138,7 +138,6 @@ body.display-page {
   background-size: cover;
   background-position: center;
 }
-
 .announcement-card > * {
   position: relative;
   z-index: 1;
@@ -1267,6 +1266,97 @@ body.display-page .empty-footer {
 .admin-card form {
   display: grid;
   gap: 0.9rem;
+}
+
+body.display-page {
+  --display-bg: #0e1511;
+  --display-surface: #18231c;
+  --display-border: rgba(224, 218, 194, 0.13);
+  --display-text: #f0ede2;
+  --display-muted: #a4aea3;
+  --display-green: #94a998;
+  --display-gold: #c5ad73;
+  color-scheme: dark;
+  color: var(--display-text);
+  background: var(--display-bg);
+}
+
+body.display-page .display-screen,
+body.display-page .display-empty-state {
+  background: #111a15;
+}
+
+body.display-page .display-empty-state {
+  color: var(--display-text);
+  background: linear-gradient(145deg, #17231b, #101713 58%);
+}
+
+body.display-page .media-stage {
+  background: #111a15;
+}
+
+body.display-page .live-picture-rail {
+  border-color: var(--display-border);
+  background: #121b16;
+  color: var(--display-text);
+}
+
+body.display-page .live-picture-rail .picture-announcement-card,
+body.display-page .empty-main-section,
+body.display-page .empty-side-section {
+  border-color: var(--display-border);
+  background: var(--display-surface);
+}
+
+body.display-page .live-picture-rail .picture-announcement-card + .picture-announcement-card,
+body.display-page .empty-side-section > section + section {
+  border-color: var(--display-border);
+}
+
+body.display-page .picture-announcement-frame {
+  border-color: var(--display-border);
+  background: #101812;
+}
+
+body.display-page .empty-eyebrow {
+  color: var(--display-green);
+}
+
+body.display-page .picture-announcement-placeholder,
+body.display-page .empty-main-section > p:last-child,
+body.display-page .empty-side-section > section p:last-child,
+body.display-page .empty-footer {
+  color: var(--display-muted);
+}
+
+body.display-page .empty-brand {
+  border-color: var(--display-border);
+}
+
+body.display-page .empty-brand-mark {
+  border-color: #718a76;
+  color: var(--display-gold);
+}
+
+body.display-page .empty-brand h1,
+body.display-page .empty-main-section h2 {
+  color: var(--display-text);
+}
+
+body.display-page .sliding-text {
+  border-color: var(--display-border);
+  background: #203b30;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+  color: var(--display-text);
+}
+
+body.display-page .sliding-text::before,
+body.display-page .ticker-pause {
+  color: var(--display-gold);
+}
+
+body.display-page .sliding-text::before {
+  border-color: var(--display-border);
 }
 
 .admin-card label {
