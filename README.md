@@ -1,22 +1,46 @@
 # InfoSiteMRSM
-MozzaBot Project ID:
 
-TV Display Information
+MRSM Langkawi information display and admin page.
 
-## Backend feed
+## Backend feed template
 
-The display reads JSON from `GET https://gapim.onrender.com/infositemrsm`. Use
-`backend-feed.sample.json` as the blank payload shape. A feed can be a
-`slides` object or a bare array of slides. Each slide should contain one image
-or one video URL; image slides advance after five seconds, while video slides
-advance when playback ends.
+The display and admin page use `https://gapim.onrender.com/infositemrsm`.
+`backend-feed.sample.json` is the response and save-payload template. The
+backend must support:
 
-The client also accepts the sample field names `picture`, `youtube`, and
-`sliding text` as aliases for `imageUrl`, `videoUrl`, and `message`. The
-`template` field selects one of the ten text-overlay positions listed in
-`announcement-templates.json`.
+- `GET /infositemrsm` returning the complete saved feed as JSON.
+- `PUT /infositemrsm` saving the submitted feed and making it visible to later
+  GET requests. The admin also tries POST if PUT is not accepted.
+- CORS for the website's origin, including JSON `PUT`/`POST` requests.
 
-The admin client sends `slides`, `announcements`, and `settings` to the same
-endpoint with `PUT`. Enable cross-origin requests for the site hosting this
-display. The display has no local content fallback; an empty or unavailable
-feed remains a blank screen.
+Keep the whole document when saving, including `slides`, `events`, and `settings`.
+Each slide can contain `title`, `message`, `imageUrl`, `videoUrl`, `caption`,
+and `template`. Use `caption: "maktab"` or `"bwp"` for a picture announcement;
+submitting an updated announcement replaces the existing item for that
+section. `settings.timetableUrl` is the public HTTPS embed URL. The ticker is
+available as `settings.footerNews` (also mirrored to `settings.slidingText`,
+top-level `slidingText`, and `newsText` for compatibility).
+
+Each event has an `id`, `title`, `startsAt` ISO timestamp (with the
+`+08:00` Kuala Lumpur offset), and optional `pinnedImageUrl`. Add and manage
+events in `admin.html`. The display beeps once per second during the final 10
+seconds, then opens `misc/solat.html` for one minute at the event time and
+returns to `index.html`. Browser audio must be enabled once on each display.
+
+Displays check the shared feed every 10 seconds, so updates appear without
+manually refreshing. This depends on the backend persisting writes and
+returning the latest feed from GET; this repository contains the client and
+payload template, not the hosted API's server or database implementation.
+
+## Display details
+
+- Prayer times use the official KDH06 yearly feed from
+  `https://solat.my/api/yearly/KDH06`, matched to the current
+  `Asia/Kuala_Lumpur` date.
+- Dates use the Malaysian locale and Kuala Lumpur timezone; the Hijri date
+  comes from the same prayer-time feed.
+- Configure a public HTTPS timetable embed in `admin.html` (Display control).
+  Some sites disallow iframe embedding, even when their page is public. Keep
+  the embed URL set to its one-day view; the display reserves a compact panel
+  for it.
+- The standalone maintenance display is `misc/maintainance.html`.

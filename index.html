@@ -1,56 +1,121 @@
 <!doctype html>
-<html lang="en">
+<html lang="en-MY">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="InfoSiteMRSM, MRSM Information Display" />
+    <meta name="keywords" content="MRSM, InfoSiteMRSM, Information Display, MRSM Information Centre" />
     <title>InfoSiteMRSM</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="favicon.ico" />
+    <link rel="icon" href="favico.ico" />
+    <meta http-equiv="refresh" content="3000" />
   </head>
   <body class="display-page">
-    <main class="display-screen" aria-label="MRSM media display">
-      <div id="media-stage" class="media-stage">
-        <section id="empty-state" class="display-empty-state" aria-live="polite">
-          <header class="empty-brand">
-            <div class="empty-brand-mark">MRSM</div>
-            <div>
-              <p class="empty-eyebrow">INFORMATION DISPLAY</p>
-              <h1>MRSM Information Centre</h1>
-            </div>
-          </header>
-
-          <div class="empty-layout">
-            <section class="empty-main-section">
-              <p class="empty-eyebrow">TODAY'S NOTICE</p>
-              <h2>No announcements published</h2>
-              <p>New videos, pictures, and announcements will appear here as soon as they are added.</p>
+    <main class="display-screen" aria-label="MRSM information display">
+      <div class="dashboard-shell">
+        <div class="display-grid">
+          <aside class="calendar-rail" aria-label="Calendar and countdown">
+            <section class="dashboard-card calendar-card">
+              <h2 class="panel-heading">Calendar</h2>
+              <ul id="calendar-events" class="calendar-events" aria-live="polite">
+                <li class="calendar-empty">No upcoming events</li>
+              </ul>
             </section>
+            <section class="dashboard-card countdown-card">
+              <h2 class="panel-heading">Countdown</h2>
+              <div class="event-countdown" id="event-countdown" aria-live="polite">
+                <span id="event-countdown-title">NO UPCOMING EVENTS</span>
+                <time id="event-countdown-time"></time>
+              </div>
+              <button id="alert-sound-toggle" class="event-sound-toggle" type="button" aria-pressed="false">
+                Enable sound
+              </button>
+            </section>
+          </aside>
 
-            <aside class="empty-side-section picture-announcement-rail">
-              <section class="picture-announcement-card" data-section="maktab">
-                <p class="empty-eyebrow">MAKTAB ANNOUNCEMENT</p>
-                <div class="picture-announcement-frame">
-                  <img id="empty-maktab-image" alt="Maktab announcement" hidden />
-                  <span class="picture-announcement-placeholder">MAKTAB PICTURE</span>
-                </div>
-              </section>
-              <section class="picture-announcement-card" data-section="bwp">
-                <p class="empty-eyebrow">BWP ANNOUNCEMENT</p>
-                <div class="picture-announcement-frame">
-                  <img id="empty-bwp-image" alt="BWP announcement" hidden />
-                  <span class="picture-announcement-placeholder">BWP PICTURE</span>
-                </div>
-              </section>
-            </aside>
-          </div>
+          <section class="video-panel" aria-label="Video montage">
+            <h2 class="panel-heading">
+              <span>Video</span>
+              <button id="video-audio-toggle" class="video-audio-toggle" type="button" hidden>
+                Enable audio
+              </button>
+            </h2>
+            <div id="media-stage" class="media-stage">
+              <div id="empty-state" class="display-empty-state" aria-live="polite">
+                <p class="empty-eyebrow">MRSM LANGKAWI</p>
+                <h1>Welcome</h1>
+                <p>Videos and updates will appear here.</p>
+              </div>
+            </div>
+          </section>
 
-          <footer class="empty-footer">
-            <p>MRSM Information Site</p>
-            <time id="empty-clock"></time>
-          </footer>
+          <aside class="information-panel" aria-label="Maktab and BWP announcements">
+            <div id="announcement-cards" class="announcement-cards">
+              <article class="dashboard-announcement" data-section="maktab">
+                <img alt="" hidden />
+                <div class="announcement-copy">
+                  <p class="empty-eyebrow">Maktab</p>
+                  <h3>No announcement</h3>
+                  <p class="announcement-message">Updates will appear here.</p>
+                </div>
+              </article>
+              <article class="dashboard-announcement" data-section="bwp">
+                <img alt="" hidden />
+                <div class="announcement-copy">
+                  <p class="empty-eyebrow">BWP</p>
+                  <h3>No announcement</h3>
+                  <p class="announcement-message">Updates will appear here.</p>
+                </div>
+              </article>
+            </div>
+          </aside>
+        </div>
+
+        <section class="utility-grid" aria-label="Daily information">
+          <section class="utility-card time-date-card" aria-label="Time and date">
+            <h2 class="panel-heading">Time &amp; Date</h2>
+            <time id="display-clock" aria-label="Current time">--:--</time>
+            <time id="gregorian-date">Loading date…</time>
+            <p id="hijri-date" lang="ms">Hijri date loading…</p>
+            <a class="solat-link" href="misc/solat.html">Jom Solat</a>
+          </section>
+
+          <section class="utility-card prayer-panel" aria-label="Langkawi prayer times">
+            <h2 class="panel-heading">Prayer Times</h2>
+            <div id="prayer-times" class="prayer-times" aria-live="polite">
+              <div class="prayer-time"><span>Subuh</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Syuruk</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Zuhr</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Asar</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Maghrib</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Isyak</span><time>--:--</time></div>
+            </div>
+            <p id="prayer-status" class="prayer-status" role="status">Prayer times loading…</p>
+          </section>
+
+          <section class="utility-card timetable-card">
+            <h2 class="panel-heading">Timetable Embed</h2>
+            <div id="timetable-container" class="timetable-container">
+              <p id="timetable-placeholder">Add a public embed URL in Display control.</p>
+              <iframe
+                id="timetable-frame"
+                title="MRSM timetable"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                sandbox="allow-scripts allow-forms allow-popups"
+                hidden
+              ></iframe>
+            </div>
+          </section>
         </section>
+
+        <footer class="ticker-footer">
+          <span class="ticker-label">Latest Update</span>
+          <span class="ticker-arrow" aria-hidden="true">&larr;</span>
+          <div id="sliding-text" class="sliding-text" aria-live="off" hidden></div>
+          <span class="ticker-arrow" aria-hidden="true">&rarr;</span>
+        </footer>
       </div>
-      <div id="sliding-text" class="sliding-text" aria-live="off" hidden></div>
     </main>
     <script src="script.js"></script>
   </body>

@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>InfoSIteMRSM Admin Panel</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="favicon.ico" />
+    <link rel="icon" href="favico.ico" />
   </head>
   <body class="admin-page">
     <main class="admin-shell">
@@ -79,6 +79,12 @@
                 required
                 placeholder="Announcement title" /></label
             ><label
+              >Short message (optional)<textarea
+                id="announcement-message"
+                rows="2"
+                placeholder="Add a short detail for the display card"
+              ></textarea></label
+            ><label
               >Picture URL<input
                 id="announcement-image"
                 type="url"
@@ -121,10 +127,10 @@
                 min="5"
                 value="24" /></label
             ><label
-              >Timetable embed URL<input
+              >ASC timetable embed URL (one-day view)<input
                 id="timetable-url"
                 type="url"
-                placeholder="https://calendar.example.com/embed" /></label
+                placeholder="https://calendar.example.com/embed?view=day" /></label
             >
             <div class="wide-field">
               <button class="button button-primary" type="submit">
@@ -133,8 +139,40 @@
             </div>
           </form>
           <p class="hint">
-            Use a public HTTPS embed URL.
+            Paste the public HTTPS one-day embed URL. The display keeps this timetable compact beside the larger announcement pictures. Some websites block iframe embeds.
           </p>
+        </div>
+        <div class="admin-card admin-wide">
+          <p class="eyebrow">EVENT COUNTDOWNS</p>
+          <h2>Schedule an event</h2>
+          <form id="event-form" class="settings-grid">
+            <label
+              >Event name<input
+                id="event-title"
+                type="text"
+                required
+                placeholder="Assembly" /></label
+            ><label
+              >Date and time (Kuala Lumpur)<input
+                id="event-starts-at"
+                type="datetime-local"
+                required /></label
+            ><label class="wide-field"
+              >Pinned picture URL (optional)<input
+                id="event-image-url"
+                type="url"
+                placeholder="https://example.com/event-picture.jpg"
+            /></label>
+            <div class="wide-field button-row">
+              <button id="event-save-button" class="button button-primary" type="submit">
+                Add event
+              </button>
+              <button id="event-cancel-button" class="button button-secondary" type="button" hidden>
+                Cancel edit
+              </button>
+            </div>
+          </form>
+          <div id="event-list" class="event-list"></div>
         </div>
         <div class="admin-card admin-wide">
           <p class="eyebrow">CONTENT LIBRARY</p>

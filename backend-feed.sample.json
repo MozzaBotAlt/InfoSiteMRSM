@@ -1,16 +1,7 @@
 {
-  "slides": [
-    {
-      "title": "",
-      "message": "",
-      "imageUrl": "",
-      "videoUrl": "",
-      "duration": 5,
-      "caption": "",
-      "template": 1
-    }
-  ],
+  "slides": [],
   "announcements": [],
+  "events": [],
   "slidingText": "",
   "newsText": "",
   "settings": {
