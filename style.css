@@ -2444,13 +2444,13 @@ body.display-page {
 }
 
 .dashboard-shell {
-  grid-template-rows: minmax(0, 1fr) clamp(150px, 20vh, 220px) auto;
+  grid-template-rows: minmax(0, 1fr) clamp(150px, 20vh, 220px) clamp(44px, 6vh, 60px) auto;
   gap: clamp(8px, 1vw, 16px);
   padding: clamp(12px, 1.5vw, 24px);
 }
 
 .display-grid {
-  grid-template-columns: minmax(150px, 0.72fr) minmax(0, 2.4fr) minmax(230px, 1.08fr);
+  grid-template-columns: minmax(150px, 0.7fr) minmax(0, 2.4fr) minmax(240px, 1.2fr);
   grid-template-areas: "widgets video images";
   align-items: center;
   gap: clamp(10px, 1.2vw, 20px);
@@ -2712,8 +2712,8 @@ body.display-page {
   align-items: stretch;
   gap: 3px;
   min-height: 0;
-  height: clamp(105px, 12vh, 135px);
-  align-self: center;
+  height: 100%;
+  align-self: stretch;
   padding: 0 10px 8px;
 }
 
@@ -2824,7 +2824,7 @@ body.display-page .ticker-footer .sliding-text {
   }
 
   .dashboard-shell {
-    grid-template-rows: auto auto auto;
+    grid-template-rows: auto auto auto auto;
     height: auto;
     min-height: 100vh;
   }

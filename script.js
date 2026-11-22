@@ -391,8 +391,6 @@ async function initFeedDisplayPage() {
       return;
     }
 
-    videoAudioToggle.addEventListener('click', enableCurrentVideoAudio);
-
     try {
       if (!alertAudioContext) {
         alertAudioContext = new AudioContextConstructor();
@@ -677,6 +675,7 @@ async function initFeedDisplayPage() {
 
   updateClockAndDate();
   window.setInterval(updateClockAndDate, 30000);
+  videoAudioToggle.addEventListener('click', enableCurrentVideoAudio);
   soundToggle.addEventListener('click', () => void toggleEventSound());
   setSoundEnabled(false);
   void updatePrayerTimes();
