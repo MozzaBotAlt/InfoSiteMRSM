@@ -588,7 +588,7 @@ async function initFeedDisplayPage() {
 
     const slide = slides[currentIndex];
     const videoId = youtubeVideoId(slide.videoUrl);
-    youtubeAudioEnabled = false;
+    youtubeAudioEnabled = true;
     emptyState.hidden = true;
 
     if (videoId) {
@@ -606,7 +606,6 @@ async function initFeedDisplayPage() {
           videoId,
           playerVars: {
             autoplay: 1,
-            mute: 1,
             controls: 0,
             disablekb: 1,
             fs: 0,
@@ -616,9 +615,8 @@ async function initFeedDisplayPage() {
           },
           events: {
             onReady: (event) => {
-              event.target.mute();
+              event.target.unMute();
               event.target.playVideo();
-              videoAudioToggle.hidden = false;
             },
             onStateChange: (event) => {
               if (event.data === youtube.PlayerState.PLAYING) {
@@ -628,6 +626,9 @@ async function initFeedDisplayPage() {
               }
             },
             onAutoplayBlocked: () => {
+              youtubeAudioEnabled = false;
+              youtubePlayer?.mute();
+              youtubePlayer?.playVideo();
               videoAudioToggle.hidden = false;
             },
             onError: (event) => console.warn('YouTube playback failed.', event.data)
@@ -643,15 +644,22 @@ async function initFeedDisplayPage() {
         const video = document.createElement('video');
         video.src = videoUrl;
         video.autoplay = true;
-        video.muted = true;
+        video.muted = false;
         video.playsInline = true;
         video.addEventListener('ended', () => advance(playback), { once: true });
         stage.replaceChildren(video);
         void video.play().then(() => {
-          videoAudioToggle.hidden = false;
+          videoAudioToggle.hidden = true;
         }).catch((error) => {
           videoAudioToggle.hidden = false;
-          console.warn('Video autoplay was blocked.', error);
+          if (error.name === 'NotAllowedError') {
+            video.muted = true;
+            void video.play().catch((fallbackError) => {
+              console.warn('Muted video autoplay was blocked.', fallbackError);
+            });
+            return;
+          }
+          console.warn('Video autoplay failed.', error);
         });
       } else {
         stage.replaceChildren(emptyState);
