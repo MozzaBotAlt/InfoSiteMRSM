@@ -2444,7 +2444,7 @@ body.display-page {
 }
 
 .dashboard-shell {
-  grid-template-rows: minmax(0, 1fr) clamp(124px, 15vh, 166px) clamp(50px, 5.5vh, 64px);
+  grid-template-rows: minmax(0, 1fr) clamp(150px, 20vh, 220px) auto;
   gap: clamp(8px, 1vw, 16px);
   padding: clamp(12px, 1.5vw, 24px);
 }
@@ -2615,14 +2615,24 @@ body.display-page {
 .dashboard-announcement {
   aspect-ratio: 16 / 9;
   border-radius: clamp(10px, 1.2vw, 18px);
+  border: 0;
+  background: transparent;
 }
 
 .dashboard-announcement::after {
-  background: linear-gradient(180deg, rgba(2, 8, 20, 0.02) 10%, rgba(2, 8, 20, 0.82) 100%);
+  content: none;
 }
 
 .announcement-copy {
   padding: clamp(10px, 1.2vw, 18px);
+}
+
+.dashboard-announcement.has-image .announcement-copy {
+  display: none;
+}
+
+.dashboard-announcement img {
+  object-fit: contain;
 }
 
 .announcement-copy .empty-eyebrow {
@@ -2646,7 +2656,7 @@ body.display-page {
   display: grid;
   grid-template-columns: minmax(170px, 0.95fr) minmax(0, 2.3fr) minmax(210px, 1.15fr);
   gap: clamp(8px, 1vw, 16px);
-  height: clamp(124px, 15vh, 166px);
+  height: clamp(150px, 20vh, 220px);
   min-height: 0;
 }
 
@@ -2702,6 +2712,8 @@ body.display-page {
   align-items: stretch;
   gap: 3px;
   min-height: 0;
+  height: clamp(105px, 12vh, 135px);
+  align-self: center;
   padding: 0 10px 8px;
 }
 
@@ -2783,6 +2795,19 @@ body.display-page .ticker-footer .sliding-text {
   text-align: center;
 }
 
+.brand-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 0;
+  min-height: 20px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(151, 185, 218, 0.13);
+  color: #8fa4b8;
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+}
+
 @media (max-width: 900px) {
   body.display-page {
     width: 100%;
@@ -2824,7 +2849,7 @@ body.display-page .ticker-footer .sliding-text {
   }
 
   .announcement-cards {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto;
   }
 
@@ -2832,6 +2857,11 @@ body.display-page .ticker-footer .sliding-text {
     grid-template-columns: minmax(145px, 0.9fr) minmax(0, 2fr) minmax(170px, 1fr);
     height: auto;
     min-height: 140px;
+  }
+
+  .prayer-panel {
+    height: auto;
+    min-height: 120px;
   }
 
   .ticker-footer {
@@ -2873,6 +2903,7 @@ body.display-page .ticker-footer .sliding-text {
 
   .prayer-panel {
     grid-template-rows: auto minmax(72px, 1fr) auto;
+    min-height: 140px;
   }
 
   .prayer-times {

@@ -34,13 +34,13 @@ payload template, not the hosted API's server or database implementation.
 
 ## Display details
 
-- Prayer times use the official KDH06 yearly feed from
-  `https://solat.my/api/yearly/KDH06`, matched to the current
-  `Asia/Kuala_Lumpur` date.
+- Prayer times use the KDH06 monthly feed from
+  `https://api.waktusolat.online/api/solat/KDH06`, matched to the current
+  `Asia/Kuala_Lumpur` date and month.
 - Dates use the Malaysian locale and Kuala Lumpur timezone; the Hijri date
   comes from the same prayer-time feed.
 - Configure a public HTTPS timetable embed in `admin.html` (Display control).
   Some sites disallow iframe embedding, even when their page is public. Keep
-  the embed URL set to its one-day view; the display reserves a compact panel
+  the embed URL set to its one-day view; the display reserves a taller panel
   for it.
 - The standalone maintenance display is `misc/maintainance.html`.

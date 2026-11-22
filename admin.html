@@ -11,10 +11,10 @@
     <main class="admin-shell">
       <header class="admin-header">
         <div>
-          <p class="eyebrow">MRSM INFO TV</p>
+          <p class="eyebrow">InfoSiteMRSM</p>
           <h1>Display control</h1>
           <p class="lead">
-            Manage the playlist, picture announcements, ticker, and timetable
+            Manage the playlist, picture announcements, moving text, and timetable
             embed.
           </p>
         </div>
@@ -94,8 +94,8 @@
               >Show for (seconds)<input
                 id="announcement-duration"
                 type="number"
-                min="5"
-                value="5"
+                min="4"
+                value="4"
             /></label>
             <div class="button-row">
               <button class="button button-primary" type="submit">
@@ -112,7 +112,7 @@
         </div>
         <div class="admin-card admin-wide">
           <p class="eyebrow">DISPLAY SETTINGS</p>
-          <h2>Ticker and timetable</h2>
+          <h2>Moving Texts and timetable</h2>
           <form id="settings-form" class="settings-grid">
             <label class="wide-field"
               >Ticker announcements<textarea
@@ -153,7 +153,7 @@
                 required
                 placeholder="Assembly" /></label
             ><label
-              >Date and time (Kuala Lumpur)<input
+              >Date and time<input
                 id="event-starts-at"
                 type="datetime-local"
                 required /></label
@@ -193,13 +193,27 @@
               Import JSON
             </button>
           </div>
-          <textarea
-            id="import-json"
-            placeholder="Paste video JSON here"
-          ></textarea>
         </div>
       </section>
     </main>
     <script src="script.js"></script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+      var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+      (function(){
+      var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+      s1.async=true;
+      s1.src='https://embed.tawk.to/6b02f2a4acadd53cda606aa5/1k81o7l1v';
+      s1.charset='UTF-8';
+      s1.setAttribute('crossorigin','*');
+      s0.parentNode.insertBefore(s1,s0);
+      })();
+    </script>
+    <!--End of Tawk.to Script-->
+
+    <footer class="brand-footer">
+          <span>&copy; 2026 MozzaBot &middot; InfoSiteMRSM</span>
+    </footer>
   </body>
 </html>

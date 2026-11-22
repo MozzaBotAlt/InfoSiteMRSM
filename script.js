@@ -1,3 +1,18 @@
+/*
+Copyright (C) 2026 MozzaBot This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 function renderTickerAnnouncements(container, text) {
   const announcements = String(text || '').split('|').map((item) => item.trim()).filter(Boolean);
   const tickerNodes = [];
@@ -78,10 +93,11 @@ function renderDashboardAnnouncements(slides) {
     const message = card.querySelector('.announcement-message');
     const imageUrl = safeHttpsUrl(slide?.imageUrl);
 
+    card.classList.toggle('has-image', Boolean(imageUrl));
     image.hidden = !imageUrl;
     if (imageUrl) {
       image.src = imageUrl;
-      image.alt = `${section.toUpperCase()} announcement`;
+      image.alt = slide?.title || `${section.toUpperCase()} announcement`;
     } else {
       image.removeAttribute('src');
       image.alt = '';
@@ -114,7 +130,7 @@ function renderTimetable(urlValue) {
   }
 }
 
-const KDH06_PRAYER_ENDPOINT = 'https://solat.my/api/yearly/KDH06';
+const KDH06_PRAYER_ENDPOINT = 'https://api.waktusolat.online/api/solat/KDH06';
 const MALAYSIA_TIME_ZONE = 'Asia/Kuala_Lumpur';
 const HIJRI_MONTHS_MS = [
   'Muharam', 'Safar', 'Rabiulawal', 'Rabiulakhir', 'Jamadilawal', 'Jamadilakhir',
@@ -122,7 +138,7 @@ const HIJRI_MONTHS_MS = [
 ];
 let cachedKdh06Schedule = null;
 let cachedKdh06At = 0;
-let cachedKdh06Year = '';
+let cachedKdh06YearMonth = '';
 let currentPrayerSchedule = null;
 
 function kualaLumpurDateParts(date = new Date()) {
@@ -179,16 +195,20 @@ function solatDateKey(dateText) {
 }
 
 async function fetchKdh06Schedule() {
-  const currentYear = kualaLumpurDateParts().year;
+  const { year, month } = kualaLumpurDateParts();
+  const currentYearMonth = `${year}-${month}`;
   if (
     cachedKdh06Schedule
-    && cachedKdh06Year === currentYear
+    && cachedKdh06YearMonth === currentYearMonth
     && Date.now() - cachedKdh06At < 6 * 60 * 60 * 1000
   ) {
     return cachedKdh06Schedule;
   }
 
-  const response = await fetch(KDH06_PRAYER_ENDPOINT, { cache: 'no-store' });
+  const endpoint = new URL(KDH06_PRAYER_ENDPOINT);
+  endpoint.searchParams.set('month', String(Number(month)));
+  endpoint.searchParams.set('year', year);
+  const response = await fetch(endpoint, { cache: 'no-store' });
   if (!response.ok) {
     throw new Error(`KDH06 prayer schedule returned HTTP ${response.status}`);
   }
@@ -199,7 +219,7 @@ async function fetchKdh06Schedule() {
 
   cachedKdh06Schedule = result.prayerTime;
   cachedKdh06At = Date.now();
-  cachedKdh06Year = currentYear;
+  cachedKdh06YearMonth = currentYearMonth;
   return cachedKdh06Schedule;
 }
 
@@ -306,7 +326,7 @@ async function updatePrayerTimes() {
     if (hijriDate) {
       hijriDate.textContent = formatHijriDate(today.hijri);
     }
-    status.textContent = 'Solat.my · KDH06 Langkawi';
+    status.textContent = 'KDH06 Langkawi';
     updatePrayerCountdown(today);
   } catch (error) {
     status.textContent = 'Prayer times unavailable';
@@ -525,13 +545,15 @@ async function initFeedDisplayPage() {
     renderDashboardAnnouncements(slides);
     renderTimetable(displayData.settings.timetableUrl);
     renderCalendarEvents();
-    const tickerMessage = displayData.slidingText || '* EVERY SUNDAY: Community Gathering *';
-    slidingText.hidden = !tickerMessage;
-    renderTickerAnnouncements(slidingText, tickerMessage);
-    slidingText.style.setProperty(
-      '--ticker-duration',
-      `${Math.max(5, Number(displayData.settings.tickerDuration) || 24)}s`
-    );
+    if (slidingText) {
+      const tickerMessage = displayData.slidingText || '* EVERY SUNDAY: Community Gathering *';
+      slidingText.hidden = !tickerMessage;
+      renderTickerAnnouncements(slidingText, tickerMessage);
+      slidingText.style.setProperty(
+        '--ticker-duration',
+        `${Math.max(5, Number(displayData.settings.tickerDuration) || 24)}s`
+      );
+    }
   }
 
   function advance(playback) {
@@ -974,7 +996,7 @@ async function initSolatPage() {
     hijriDate.textContent = formatHijriDate(schedule.hijri);
     currentPrayerSchedule = schedule;
     updatePrayerCountdown(schedule);
-    status.textContent = 'Solat.my · KDH06 Langkawi';
+    status.textContent = 'KDH06 Langkawi';
   }
 
   async function loadSchedule() {
