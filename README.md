@@ -32,6 +32,10 @@ manually refreshing. This depends on the backend persisting writes and
 returning the latest feed from GET; this repository contains the client and
 payload template, not the hosted API's server or database implementation.
 
+Serve the display over HTTP(S), not by opening `index.html` as a local file:
+YouTube requires an HTTP referrer to play embedded videos. Videos start muted
+for reliable autoplay; use **Enable audio** on the display to turn sound on.
+
 ## Display details
 
 - Prayer times use the KDH06 monthly feed from

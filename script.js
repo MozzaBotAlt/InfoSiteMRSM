@@ -352,14 +352,17 @@ async function initFeedDisplayPage() {
   let playbackId = 0;
   let timerId = null;
   let youtubePlayer = null;
+  let youtubeAudioEnabled = true;
   let alertAudioContext = null;
   let alertSoundEnabled = false;
   let lastEventBeep = '';
 
   function enableCurrentVideoAudio() {
     if (youtubePlayer) {
+      youtubeAudioEnabled = true;
       youtubePlayer.unMute();
       youtubePlayer.playVideo();
+      videoAudioToggle.hidden = true;
       return;
     }
 
@@ -587,12 +590,16 @@ async function initFeedDisplayPage() {
 
     const slide = slides[currentIndex];
     const videoId = youtubeVideoId(slide.videoUrl);
+    youtubeAudioEnabled = false;
     emptyState.hidden = true;
 
     if (videoId) {
       const mount = document.createElement('div');
       mount.id = 'youtube-player';
       stage.replaceChildren(mount);
+      const youtubeOrigin = /^https?:$/.test(window.location.protocol)
+        ? window.location.origin
+        : '';
       loadYouTubeApi().then((youtube) => {
         if (playback !== playbackId) {
           return;
@@ -601,21 +608,23 @@ async function initFeedDisplayPage() {
           videoId,
           playerVars: {
             autoplay: 1,
-            mute: 0,
+            mute: 1,
             controls: 0,
             disablekb: 1,
             fs: 0,
             playsinline: 1,
-            rel: 0
+            rel: 0,
+            ...(youtubeOrigin ? { origin: youtubeOrigin } : {})
           },
           events: {
             onReady: (event) => {
-              event.target.unMute();
+              event.target.mute();
               event.target.playVideo();
+              videoAudioToggle.hidden = false;
             },
             onStateChange: (event) => {
               if (event.data === youtube.PlayerState.PLAYING) {
-                videoAudioToggle.hidden = true;
+                videoAudioToggle.hidden = youtubeAudioEnabled;
               } else if (event.data === youtube.PlayerState.ENDED) {
                 advance(playback);
               }
@@ -636,13 +645,15 @@ async function initFeedDisplayPage() {
         const video = document.createElement('video');
         video.src = videoUrl;
         video.autoplay = true;
-        video.muted = false;
+        video.muted = true;
         video.playsInline = true;
         video.addEventListener('ended', () => advance(playback), { once: true });
         stage.replaceChildren(video);
-        void video.play().catch((error) => {
+        void video.play().then(() => {
           videoAudioToggle.hidden = false;
-          console.warn('Video autoplay with sound was blocked.', error);
+        }).catch((error) => {
+          videoAudioToggle.hidden = false;
+          console.warn('Video autoplay was blocked.', error);
         });
       } else {
         stage.replaceChildren(emptyState);
