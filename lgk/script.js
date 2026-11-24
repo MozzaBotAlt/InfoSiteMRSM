@@ -723,7 +723,7 @@ async function initFeedDisplayPage() {
   window.setInterval(() => void refreshDisplayFeed(), 10000);
 }
 
-const BACKEND_API_BASE = "https://gapim.onrender.com/";
+const BACKEND_API_BASE = "https://gapim.onrender.com/lgk/";
 const BACKEND_DATA_ENDPOINT = '/infositemrsm';
 const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
 let lastBackendError = null;
