@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en-MY">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="description" content="InfoSiteMRSM, MRSM Information Display by MozzaBot" />
+    <meta name="keywords" content="MRSM, InfoSiteMRSM, Information Display, MRSM Information Centre, MozzaBot" />
+    <meta name="author" content="MozzaBot" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>InfoSiteMRSM</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="icon" href="favico.ico" />
+    <meta http-equiv="refresh" content="3000" />
+  </head>
+  <body class="display-page">
+    <main class="display-screen" aria-label="MRSM information display">
+      <div class="dashboard-shell">
+        <div class="display-grid">
+          <aside class="calendar-rail" aria-label="Calendar and countdown">
+            <section class="dashboard-card calendar-card">
+              <h2 class="panel-heading">Calendar</h2>
+              <ul id="calendar-events" class="calendar-events" aria-live="polite">
+                <li class="calendar-empty">No upcoming events</li>
+              </ul>
+            </section>
+            <section class="dashboard-card countdown-card">
+              <h2 class="panel-heading">Countdown</h2>
+              <div class="event-countdown" id="event-countdown" aria-live="polite">
+                <span id="event-countdown-title">NO UPCOMING EVENTS</span>
+                <time id="event-countdown-time"></time>
+              </div>
+              <!-- Sound toggle button -->
+              <!--<button id="alert-sound-toggle" class="event-sound-toggle" type="button" aria-pressed="false">
+                Enable sound
+              </button>-->
+            </section>
+          </aside>
+
+          <section class="video-panel" aria-label="Video montage">
+            <h2 class="panel-heading">
+              <span>Video</span>
+              <button id="video-audio-toggle" class="video-audio-toggle" type="button" hidden>
+                Enable audio
+              </button>
+            </h2>
+            <div id="media-stage" class="media-stage">
+              <div id="empty-state" class="display-empty-state" aria-live="polite">
+                <p class="empty-eyebrow">MRSM LANGKAWI</p>
+                <h1>Welcome</h1>
+                <p>Videos and updates will appear here.</p>
+              </div>
+            </div>
+          </section>
+
+          <aside class="information-panel" aria-label="Maktab and BWP announcements">
+            <div id="announcement-cards" class="announcement-cards">
+              <article class="dashboard-announcement" data-section="maktab">
+                <img alt="" hidden />
+                <div class="announcement-copy">
+                  <p class="empty-eyebrow">College</p>
+                  <h3>No announcement</h3>
+                  <p class="announcement-message">Updates will appear here.</p>
+                </div>
+              </article>
+              <article class="dashboard-announcement" data-section="bwp">
+                <img alt="" hidden />
+                <div class="announcement-copy">
+                  <p class="empty-eyebrow">BWP</p>
+                  <h3>No announcement</h3>
+                  <p class="announcement-message">Updates will appear here.</p>
+                </div>
+              </article>
+            </div>
+          </aside>
+        </div>
+
+        <section class="utility-grid" aria-label="Daily information">
+          <section class="utility-card time-date-card" aria-label="Time and date">
+            <h2 class="panel-heading">Time &amp; Date</h2>
+            <time id="display-clock" aria-label="Current time">--:--</time>
+            <time id="gregorian-date">Loading date…</time>
+            <p id="hijri-date" lang="ms">Hijri date loading…</p>
+            <a class="solat-link" href="misc/solat.html">Jom Solat</a>
+          </section>
+
+          <section class="utility-card prayer-panel" aria-label="Langkawi prayer times">
+            <h2 class="panel-heading">Prayer Times</h2>
+            <div id="prayer-times" class="prayer-times" aria-live="polite">
+              <div class="prayer-time"><span>Subuh</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Syuruk</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Zuhr</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Asar</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Maghrib</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Isyak</span><time>--:--</time></div>
+            </div>
+            <p id="prayer-status" class="prayer-status" role="status">Prayer times loading…</p>
+          </section>
+
+          <section class="utility-card timetable-card">
+            <h2 class="panel-heading">Timetable Embed</h2>
+            <div id="timetable-container" class="timetable-container">
+              <p id="timetable-placeholder">No timetable available.</p>
+              <iframe
+                id="timetable-frame"
+                title="MRSM timetable"
+                loading="lazy"
+                referrerpolicy="no-referrer"
+                sandbox="allow-scripts allow-forms allow-popups"
+                hidden
+              ></iframe>
+            </div>
+          </section>
+        </section>
+
+        <section class="ticker-footer" aria-label="Announcements">
+          <span class="ticker-label">Updates</span>
+          <span class="ticker-arrow" aria-hidden="true">&rsaquo;</span>
+          <div id="sliding-text" class="sliding-text" aria-live="polite"></div>
+          <span class="ticker-arrow" aria-hidden="true">&lsaquo;</span>
+        </section>
+
+        <footer class="brand-footer">
+          <span>&copy; 2026 MozzaBot &middot; InfoSiteMRSM</span>
+        </footer>
+      </div>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

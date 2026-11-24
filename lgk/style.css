@@ -186,7 +186,7 @@ body.display-page {
 .brand-block {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.50rem;
 }
 
 .brand-badge {
@@ -2055,6 +2055,7 @@ body.display-page .display-empty-state > p:last-child {
   color: #e2edf7;
   font-size: clamp(0.88rem, 1.1vw, 1rem);
   line-height: 1.35;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -2800,11 +2801,11 @@ body.display-page .ticker-footer .sliding-text {
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
-  min-height: 20px;
-  padding-top: 5px;
+  min-height: 10px;
+  padding-top: 2.5px;
   border-top: 1px solid rgba(151, 185, 218, 0.13);
   color: #8fa4b8;
-  font-size: 0.62rem;
+  font-size: 0.60rem;
   letter-spacing: 0.04em;
 }
 

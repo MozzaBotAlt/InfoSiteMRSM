@@ -1,51 +1,19 @@
-# InfoSiteMRSM
+# College information display
 
-MRSM Langkawi information display and admin page.
+This repository contains the current Langkawi deployment and a reusable client template.
 
-## Backend feed template
+## Folders
 
-The display and admin page use `https://gapim.onrender.com/infositemrsm`.
-`backend-feed.sample.json` is the response and save-payload template. The
-backend must support:
+- [`lgk/`](lgk/) — current active MRSM Langkawi version. Serve `lgk/index.html` over HTTP(S); its admin page is `lgk/admin.html`.
+- [`template/frontend/`](template/frontend/) — generic frontend starter. Customize `config.js`, page labels, and styles for each client.
+- [`template/backend/`](template/backend/) — framework-independent API contract and empty example feed. It is not a backend implementation.
 
-- `GET /infositemrsm` returning the complete saved feed as JSON.
-- `PUT /infositemrsm` saving the submitted feed and making it visible to later
-  GET requests. The admin also tries POST if PUT is not accepted.
-- CORS for the website's origin, including JSON `PUT`/`POST` requests.
+## Starting a client version
 
-Keep the whole document when saving, including `slides`, `events`, and `settings`.
-Each slide can contain `title`, `message`, `imageUrl`, `videoUrl`, `caption`,
-and `template`. Use `caption: "maktab"` or `"bwp"` for a picture announcement;
-submitting an updated announcement replaces the existing item for that
-section. `settings.timetableUrl` is the public HTTPS embed URL. The ticker is
-available as `settings.footerNews` (also mirrored to `settings.slidingText`,
-top-level `slidingText`, and `newsText` for compatibility).
+1. Copy `template/frontend/` and `template/backend/` into a new version folder.
+2. Set `collegeName`, `timeZone`, `locale`, backend origin, and prayer feed in the frontend `config.js`.
+3. Implement the feed API described in `template/backend/README.md`, or adapt the frontend to the client's existing backend.
+4. Configure the prayer provider to return the documented daily schedule shape, or adapt the frontend parser.
+5. Serve the frontend over HTTP(S), then test both the display and admin page against that client's backend.
 
-Each event has an `id`, `title`, `startsAt` ISO timestamp (with the
-`+08:00` Kuala Lumpur offset), and optional `pinnedImageUrl`. Add and manage
-events in `admin.html`. The display beeps once per second during the final 10
-seconds, then opens `misc/solat.html` for one minute at the event time and
-returns to `index.html`. Browser audio must be enabled once on each display.
-
-Displays check the shared feed every 10 seconds, so updates appear without
-manually refreshing. This depends on the backend persisting writes and
-returning the latest feed from GET; this repository contains the client and
-payload template, not the hosted API's server or database implementation.
-
-Serve the display over HTTP(S), not by opening `index.html` as a local file:
-YouTube requires an HTTP referrer to play embedded videos. The display tries
-to autoplay videos with sound; browsers that block audible autoplay fall back
-to muted playback, and **Enable audio** can be used to turn sound on.
-
-## Display details
-
-- Prayer times use the KDH06 monthly feed from
-  `https://api.waktusolat.online/api/solat/KDH06`, matched to the current
-  `Asia/Kuala_Lumpur` date and month.
-- Dates use the Malaysian locale and Kuala Lumpur timezone; the Hijri date
-  comes from the same prayer-time feed.
-- Configure a public HTTPS timetable embed in `admin.html` (Display control).
-  Some sites disallow iframe embedding, even when their page is public. Keep
-  the embed URL set to its one-day view; the display reserves a taller panel
-  for it.
-- The standalone maintenance display is `misc/maintainance.html`.
+The repository root `LICENSE` applies to the project.

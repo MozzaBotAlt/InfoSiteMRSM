@@ -4,15 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta name="description" content="InfoSiteMRSM, MRSM Information Display by MozzaBot" />
-    <meta name="keywords" content="MRSM, InfoSiteMRSM, Information Display, MRSM Information Centre, MozzaBot" />
-    <title>InfoSiteMRSM</title>
+    <meta name="description" content="College information display" />
+    <title>College Display</title>
     <link rel="stylesheet" href="style.css" />
-    <link rel="icon" href="favico.ico" />
     <meta http-equiv="refresh" content="3000" />
   </head>
   <body class="display-page">
-    <main class="display-screen" aria-label="MRSM information display">
+    <main class="display-screen" aria-label="College information display">
       <div class="dashboard-shell">
         <div class="display-grid">
           <aside class="calendar-rail" aria-label="Calendar and countdown">
@@ -28,9 +26,6 @@
                 <span id="event-countdown-title">NO UPCOMING EVENTS</span>
                 <time id="event-countdown-time"></time>
               </div>
-              <button id="alert-sound-toggle" class="event-sound-toggle" type="button" aria-pressed="false">
-                Enable sound
-              </button>
             </section>
           </aside>
 
@@ -43,27 +38,27 @@
             </h2>
             <div id="media-stage" class="media-stage">
               <div id="empty-state" class="display-empty-state" aria-live="polite">
-                <p class="empty-eyebrow">MRSM LANGKAWI</p>
+                <p class="empty-eyebrow" data-college-name>Your College</p>
                 <h1>Welcome</h1>
                 <p>Videos and updates will appear here.</p>
               </div>
             </div>
           </section>
 
-          <aside class="information-panel" aria-label="Maktab and BWP announcements">
+          <aside class="information-panel" aria-label="Announcements">
             <div id="announcement-cards" class="announcement-cards">
-              <article class="dashboard-announcement" data-section="maktab">
+              <article class="dashboard-announcement" data-section="primary">
                 <img alt="" hidden />
                 <div class="announcement-copy">
-                  <p class="empty-eyebrow">College</p>
+                  <p class="empty-eyebrow">Primary</p>
                   <h3>No announcement</h3>
                   <p class="announcement-message">Updates will appear here.</p>
                 </div>
               </article>
-              <article class="dashboard-announcement" data-section="bwp">
+              <article class="dashboard-announcement" data-section="secondary">
                 <img alt="" hidden />
                 <div class="announcement-copy">
-                  <p class="empty-eyebrow">BWP</p>
+                  <p class="empty-eyebrow">Secondary</p>
                   <h3>No announcement</h3>
                   <p class="announcement-message">Updates will appear here.</p>
                 </div>
@@ -78,20 +73,20 @@
             <time id="display-clock" aria-label="Current time">--:--</time>
             <time id="gregorian-date">Loading date…</time>
             <p id="hijri-date" lang="ms">Hijri date loading…</p>
-            <a class="solat-link" href="misc/solat.html">Jom Solat</a>
+            <a class="solat-link" href="misc/prayer-times.html">Prayer Schedule</a>
           </section>
 
-          <section class="utility-card prayer-panel" aria-label="Langkawi prayer times">
+          <section class="utility-card prayer-panel" aria-label="Prayer times">
             <h2 class="panel-heading">Prayer Times</h2>
             <div id="prayer-times" class="prayer-times" aria-live="polite">
-              <div class="prayer-time"><span>Subuh</span><time>--:--</time></div>
-              <div class="prayer-time"><span>Syuruk</span><time>--:--</time></div>
-              <div class="prayer-time"><span>Zuhr</span><time>--:--</time></div>
-              <div class="prayer-time"><span>Asar</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Fajr</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Sunrise</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Dhuhr</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Asr</span><time>--:--</time></div>
               <div class="prayer-time"><span>Maghrib</span><time>--:--</time></div>
-              <div class="prayer-time"><span>Isyak</span><time>--:--</time></div>
+              <div class="prayer-time"><span>Isha</span><time>--:--</time></div>
             </div>
-            <p id="prayer-status" class="prayer-status" role="status">Prayer times loading…</p>
+            <p id="prayer-status" class="prayer-status" role="status">Configure the prayer feed in config.js</p>
           </section>
 
           <section class="utility-card timetable-card">
@@ -100,7 +95,7 @@
               <p id="timetable-placeholder">No timetable available.</p>
               <iframe
                 id="timetable-frame"
-                title="MRSM timetable"
+                title="College timetable"
                 loading="lazy"
                 referrerpolicy="no-referrer"
                 sandbox="allow-scripts allow-forms allow-popups"
@@ -118,10 +113,11 @@
         </section>
 
         <footer class="brand-footer">
-          <span>&copy; 2026 MozzaBot &middot; InfoSiteMRSM</span>
+          <span data-college-footer>&copy; Your College</span>
         </footer>
       </div>
     </main>
+    <script src="config.js"></script>
     <script src="script.js"></script>
   </body>
 </html>
