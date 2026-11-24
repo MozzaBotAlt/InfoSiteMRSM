@@ -684,8 +684,10 @@ async function initFeedDisplayPage() {
   updateClockAndDate();
   window.setInterval(updateClockAndDate, 30000);
   videoAudioToggle.addEventListener('click', enableCurrentVideoAudio);
-  soundToggle.addEventListener('click', () => void toggleEventSound());
-  setSoundEnabled(false);
+  if (soundToggle) {
+    soundToggle.addEventListener('click', () => void toggleEventSound());
+    setSoundEnabled(false);
+  }
   void updatePrayerTimes();
   window.setInterval(updatePrayerTimes, 60 * 60 * 1000);
   updateEventCountdown();
@@ -723,9 +725,9 @@ async function initFeedDisplayPage() {
   window.setInterval(() => void refreshDisplayFeed(), 10000);
 }
 
-const BACKEND_API_BASE = "https://gapim.onrender.com/lgk/";
-const BACKEND_DATA_ENDPOINT = '/infositemrsm';
-const BACKEND_SAVE_ENDPOINT = '/infositemrsm';
+const BACKEND_API_BASE = 'https://gapim.onrender.com';
+const BACKEND_DATA_ENDPOINT = '/infositemrsm/lgk';
+const BACKEND_SAVE_ENDPOINT = BACKEND_DATA_ENDPOINT;
 let lastBackendError = null;
 
 function normalizeSlide(slide = {}) {

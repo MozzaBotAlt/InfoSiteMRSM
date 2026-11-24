@@ -4,12 +4,12 @@ MRSM Langkawi information display and admin page.
 
 ## Backend feed template
 
-The display and admin page use `https://gapim.onrender.com/infositemrsm`.
+The display and admin page use `https://gapim.onrender.com/infositemrsm/lgk`.
 The reusable feed shape is in `../template/backend/feed.example.json`. The
 backend must support:
 
-- `GET /infositemrsm` returning the complete saved feed as JSON.
-- `PUT /infositemrsm` saving the submitted feed and making it visible to later
+- `GET /infositemrsm/lgk` returning the complete saved feed as JSON.
+- `PUT /infositemrsm/lgk` saving the submitted feed and making it visible to later
   GET requests. The admin also tries POST if PUT is not accepted.
 - CORS for the website's origin, including JSON `PUT`/`POST` requests.
 
