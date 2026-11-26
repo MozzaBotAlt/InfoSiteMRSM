@@ -345,20 +345,155 @@ async function initFeedDisplayPage() {
   const eventTitle = document.getElementById('event-countdown-title');
   const eventTime = document.getElementById('event-countdown-time');
   const soundToggle = document.getElementById('alert-sound-toggle');
+  const solatOverlay = document.getElementById('solat-overlay');
+  const solatClock = document.getElementById('overlay-solat-clock');
+  const solatDate = document.getElementById('overlay-solat-date');
+  const hijriDate = document.getElementById('overlay-hijri-date');
+  const solatStatus = document.getElementById('overlay-solat-status');
+  const solatEventBanner = document.getElementById('overlay-solat-event-banner');
+  const solatEventTitle = document.getElementById('overlay-solat-event-title');
+  const solatEventImage = document.getElementById('overlay-solat-event-image');
   let displayData = { slides: [], slidingText: '', settings: {}, events: [] };
   let slides = displayData.slides;
   let events = displayData.events;
   let currentIndex = 0;
   let playbackId = 0;
+  let failedPlaybackId = -1;
   let timerId = null;
+  let solatClockTimerId = null;
+  let solatReturnTimerId = null;
+  let lastOpenedEventId = '';
   let youtubePlayer = null;
+  let youtubePlayerReady = false;
+  let activeYoutubeVideoId = '';
+  let activeYoutubePlayback = 0;
+  const youtubeMount = document.createElement('div');
+  youtubeMount.id = 'youtube-player';
+  youtubeMount.hidden = true;
+  const slideLayer = document.createElement('div');
+  slideLayer.className = 'display-slide-layer';
+  slideLayer.replaceChildren(emptyState);
+  stage.replaceChildren(slideLayer, youtubeMount);
   let youtubeAudioEnabled = true;
   let alertAudioContext = null;
   let alertSoundEnabled = false;
   let lastEventBeep = '';
 
+  function cleanupVideoSources() {
+    slideLayer.querySelectorAll('video').forEach((video) => {
+      video.pause();
+      video.removeAttribute('src');
+      video.querySelectorAll('source').forEach((source) => source.removeAttribute('src'));
+      video.load();
+    });
+  }
+
+  function pauseYouTubePlayer() {
+    if (youtubePlayer && youtubePlayerReady) {
+      youtubePlayer.pauseVideo();
+    }
+  }
+
+  function updateSolatOverlayClock() {
+    const now = new Date();
+    solatClock.textContent = new Intl.DateTimeFormat('en-MY', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: true
+    }).format(now);
+    solatDate.textContent = new Intl.DateTimeFormat('ms-MY', {
+      timeZone: 'Asia/Kuala_Lumpur',
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(now);
+    if (currentPrayerSchedule) {
+      const next = nextPrayerInfo(currentPrayerSchedule, now);
+      const hours = Math.floor(next.secondsUntil / 3600);
+      const minutes = Math.floor((next.secondsUntil % 3600) / 60);
+      const seconds = next.secondsUntil % 60;
+      document.getElementById('overlay-next-prayer-name').textContent = next.name;
+      document.getElementById('overlay-next-prayer-countdown').textContent =
+        `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    }
+  }
+
+  function renderSolatSchedule(schedule) {
+    const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    prayers.forEach((key) => {
+      const time = solatOverlay.querySelector(`[data-overlay-prayer="${key}"] time`);
+      time.textContent = String(schedule[key] || '--:--').slice(0, 5);
+    });
+    hijriDate.textContent = formatHijriDate(schedule.hijri);
+    solatStatus.textContent = 'KDH06 Langkawi';
+    updateSolatOverlayClock();
+  }
+
+  function closeSolatView() {
+    if (solatOverlay.hidden) {
+      return;
+    }
+    solatOverlay.hidden = true;
+    window.clearInterval(solatClockTimerId);
+    window.clearTimeout(solatReturnTimerId);
+    solatEventBanner.hidden = true;
+    solatEventImage.removeAttribute('src');
+    solatEventImage.alt = '';
+    pauseYouTubePlayer();
+    slideLayer.querySelectorAll('video').forEach((video) => video.pause());
+    showCurrent();
+  }
+
+  function showSolatView(event, automatic = false) {
+    if (event) {
+      solatEventBanner.hidden = false;
+      solatEventTitle.textContent = event.title;
+      const imageUrl = safeHttpsUrl(event.pinnedImageUrl);
+      solatEventBanner.classList.toggle('has-image', Boolean(imageUrl));
+      solatEventImage.hidden = !imageUrl;
+      if (imageUrl) {
+        solatEventImage.src = imageUrl;
+        solatEventImage.alt = event.title;
+      } else {
+        solatEventImage.removeAttribute('src');
+        solatEventImage.alt = '';
+      }
+    } else {
+      solatEventBanner.hidden = true;
+    }
+
+    solatOverlay.hidden = false;
+    window.clearTimeout(timerId);
+    timerId = null;
+    pauseYouTubePlayer();
+    slideLayer.querySelectorAll('video').forEach((video) => video.pause());
+    updateSolatOverlayClock();
+    window.clearInterval(solatClockTimerId);
+    solatClockTimerId = window.setInterval(updateSolatOverlayClock, 1000);
+    if (currentPrayerSchedule) {
+      renderSolatSchedule(currentPrayerSchedule);
+    } else {
+      void prayerScheduleForToday().then((schedule) => {
+        currentPrayerSchedule = schedule;
+        if (!solatOverlay.hidden) {
+          renderSolatSchedule(schedule);
+        }
+      }).catch((error) => {
+        solatStatus.textContent = 'Prayer times unavailable';
+        console.warn('Unable to load the Jom Solat overlay schedule.', error);
+      });
+    }
+    window.clearTimeout(solatReturnTimerId);
+    if (automatic) {
+      solatReturnTimerId = window.setTimeout(closeSolatView, 60 * 1000);
+    }
+  }
+
   function enableCurrentVideoAudio() {
-    if (youtubePlayer) {
+    if (youtubePlayer && youtubePlayerReady) {
       youtubeAudioEnabled = true;
       youtubePlayer.unMute();
       youtubePlayer.playVideo();
@@ -436,16 +571,8 @@ async function initFeedDisplayPage() {
   }
 
   function openSolatForEvent(event) {
-    try {
-      window.sessionStorage.setItem('infositemrsm.activeEvent', JSON.stringify(event));
-    } catch (error) {
-      console.warn('Unable to stage the pinned event for Jom Solat.', error);
-    }
-    const url = new URL('misc/solat.html', window.location.href);
-    url.searchParams.set('eventMode', '1');
-    url.searchParams.set('eventId', event.id);
-    url.searchParams.set('returnTo', '../index.html');
-    window.location.assign(url.href);
+    lastOpenedEventId = event.id;
+    showSolatView(event, true);
   }
 
   function updateEventCountdown() {
@@ -469,7 +596,9 @@ async function initFeedDisplayPage() {
       : `STARTS IN ${formatEventTimeRemaining(remaining)}`;
 
     if (remaining <= 0) {
-      openSolatForEvent(upcoming);
+      if (lastOpenedEventId !== upcoming.id) {
+        openSolatForEvent(upcoming);
+      }
       return;
     }
 
@@ -557,15 +686,42 @@ async function initFeedDisplayPage() {
     }
   }
 
+  function showYouTubeFallback(playback, videoId, error) {
+    if (playback !== playbackId || failedPlaybackId === playback) {
+      return;
+    }
+    failedPlaybackId = playback;
+    console.warn('YouTube playback failed; skipping this video.', error);
+
+    pauseYouTubePlayer();
+    youtubeMount.hidden = true;
+
+    const fallback = document.createElement('div');
+    fallback.className = 'display-empty-state';
+    const eyebrow = document.createElement('p');
+    eyebrow.className = 'empty-eyebrow';
+    eyebrow.textContent = 'VIDEO UNAVAILABLE';
+    const heading = document.createElement('h1');
+    heading.textContent = 'Unable to play this video';
+    const message = document.createElement('p');
+    message.textContent = 'Moving to the next update shortly.';
+    const link = document.createElement('a');
+    link.href = `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}`;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.textContent = 'Open on YouTube';
+    fallback.append(eyebrow, heading, message, link);
+    slideLayer.replaceChildren(fallback);
+    slideLayer.hidden = false;
+
+    timerId = window.setTimeout(() => advance(playback), 5000);
+  }
+
   function advance(playback) {
     if (playback !== playbackId || !slides.length) {
       return;
     }
     window.clearTimeout(timerId);
-    if (youtubePlayer) {
-      youtubePlayer.destroy();
-      youtubePlayer = null;
-    }
     currentIndex = (currentIndex + 1) % slides.length;
     showCurrent();
   }
@@ -573,15 +729,15 @@ async function initFeedDisplayPage() {
   function showCurrent() {
     applyDashboardData();
     const playback = ++playbackId;
+    cleanupVideoSources();
     videoAudioToggle.hidden = true;
     window.clearTimeout(timerId);
-    if (youtubePlayer) {
-      youtubePlayer.destroy();
-      youtubePlayer = null;
-    }
+    pauseYouTubePlayer();
 
     if (!slides.length) {
-      stage.replaceChildren(emptyState);
+      slideLayer.hidden = false;
+      youtubeMount.hidden = true;
+      slideLayer.replaceChildren(emptyState);
       emptyState.hidden = false;
       return;
     }
@@ -592,18 +748,27 @@ async function initFeedDisplayPage() {
     emptyState.hidden = true;
 
     if (videoId) {
-      const mount = document.createElement('div');
-      mount.id = 'youtube-player';
-      stage.replaceChildren(mount);
+      youtubeMount.hidden = false;
+      slideLayer.hidden = true;
+      activeYoutubeVideoId = videoId;
+      activeYoutubePlayback = playback;
       const youtubeOrigin = /^https?:$/.test(window.location.protocol)
         ? window.location.origin
         : '';
       loadYouTubeApi().then((youtube) => {
-        if (playback !== playbackId) {
+        if (playback !== playbackId || !solatOverlay.hidden) {
           return;
         }
-        youtubePlayer = new youtube.Player(mount, {
-          videoId,
+        timerId = window.setTimeout(() => {
+          showYouTubeFallback(playback, videoId, new Error('YouTube player did not start playing'));
+        }, 15000);
+        if (youtubePlayer) {
+          if (youtubePlayerReady) {
+            youtubePlayer.loadVideoById(videoId);
+          }
+          return;
+        }
+        youtubePlayer = new youtube.Player(youtubeMount, {
           playerVars: {
             autoplay: 1,
             controls: 0,
@@ -615,26 +780,38 @@ async function initFeedDisplayPage() {
           },
           events: {
             onReady: (event) => {
+              youtubePlayerReady = true;
+              if (activeYoutubePlayback !== playbackId || !solatOverlay.hidden) {
+                return;
+              }
               event.target.unMute();
-              event.target.playVideo();
+              event.target.loadVideoById(activeYoutubeVideoId);
             },
             onStateChange: (event) => {
               if (event.data === youtube.PlayerState.PLAYING) {
+                window.clearTimeout(timerId);
+                timerId = null;
                 videoAudioToggle.hidden = youtubeAudioEnabled;
               } else if (event.data === youtube.PlayerState.ENDED) {
-                advance(playback);
+                advance(activeYoutubePlayback);
               }
             },
             onAutoplayBlocked: () => {
+              window.clearTimeout(timerId);
+              timerId = null;
               youtubeAudioEnabled = false;
               youtubePlayer?.mute();
               youtubePlayer?.playVideo();
               videoAudioToggle.hidden = false;
             },
-            onError: (event) => console.warn('YouTube playback failed.', event.data)
+            onError: (event) => showYouTubeFallback(
+              activeYoutubePlayback,
+              activeYoutubeVideoId,
+              event.data
+            )
           }
         });
-      }).catch((error) => console.warn('Unable to load YouTube playback.', error));
+      }).catch((error) => showYouTubeFallback(playback, videoId, error));
       return;
     }
 
@@ -647,7 +824,9 @@ async function initFeedDisplayPage() {
         video.muted = false;
         video.playsInline = true;
         video.addEventListener('ended', () => advance(playback), { once: true });
-        stage.replaceChildren(video);
+        youtubeMount.hidden = true;
+        slideLayer.hidden = false;
+        slideLayer.replaceChildren(video);
         void video.play().then(() => {
           videoAudioToggle.hidden = true;
         }).catch((error) => {
@@ -662,7 +841,9 @@ async function initFeedDisplayPage() {
           console.warn('Video autoplay failed.', error);
         });
       } else {
-        stage.replaceChildren(emptyState);
+        youtubeMount.hidden = true;
+        slideLayer.hidden = false;
+        slideLayer.replaceChildren(emptyState);
       }
       return;
     }
@@ -673,9 +854,13 @@ async function initFeedDisplayPage() {
       image.src = safeHttpsUrl(slide.imageUrl);
       image.alt = slide.title || 'MRSM Langkawi announcement';
       image.draggable = false;
-      stage.replaceChildren(image);
+      youtubeMount.hidden = true;
+      slideLayer.hidden = false;
+      slideLayer.replaceChildren(image);
     } else {
-      stage.replaceChildren(emptyState);
+      slideLayer.hidden = false;
+      youtubeMount.hidden = true;
+      slideLayer.replaceChildren(emptyState);
       emptyState.hidden = false;
     }
     timerId = window.setTimeout(() => advance(playback), 5000);
@@ -684,6 +869,15 @@ async function initFeedDisplayPage() {
   updateClockAndDate();
   window.setInterval(updateClockAndDate, 30000);
   videoAudioToggle.addEventListener('click', enableCurrentVideoAudio);
+  document.querySelector('.solat-link').addEventListener('click', (event) => {
+    event.preventDefault();
+    showSolatView(null);
+  });
+  solatOverlay.querySelector('.solat-overlay-close').addEventListener('click', closeSolatView);
+  window.addEventListener('pagehide', () => {
+    cleanupVideoSources();
+    pauseYouTubePlayer();
+  });
   if (soundToggle) {
     soundToggle.addEventListener('click', () => void toggleEventSound());
     setSoundEnabled(false);
@@ -691,7 +885,7 @@ async function initFeedDisplayPage() {
   void updatePrayerTimes();
   window.setInterval(updatePrayerTimes, 60 * 60 * 1000);
   updateEventCountdown();
-  window.setInterval(updateEventCountdown, 250);
+  window.setInterval(updateEventCountdown, 1000);
   showCurrent();
 
   let lastFeed = JSON.stringify(displayData);
@@ -710,12 +904,18 @@ async function initFeedDisplayPage() {
       if (latestFeed === lastFeed) {
         return;
       }
+      const slidesChanged = JSON.stringify(latestData.slides) !== JSON.stringify(slides);
       lastFeed = latestFeed;
       displayData = latestData;
       slides = latestData.slides;
       events = latestData.events;
-      currentIndex = 0;
-      showCurrent();
+      if (slidesChanged) {
+        currentIndex = slides.length ? currentIndex % slides.length : 0;
+        showCurrent();
+      } else {
+        applyDashboardData();
+        updateEventCountdown();
+      }
     } finally {
       feedRefreshInProgress = false;
     }

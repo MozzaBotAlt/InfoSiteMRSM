@@ -805,7 +805,7 @@ body.display-page {
   height: 100%;
   display: grid;
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  background: rgba(2, 8, 20, 0.96);
+  background: #020814;
   border-left: 1px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -2442,6 +2442,67 @@ body.display-page .ticker-footer .ticker-announcement {
 body.display-page {
   overflow: hidden;
   background: #080e17;
+}
+
+.media-stage > [hidden] {
+  display: none;
+}
+
+.solat-overlay {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: clamp(12px, 3vw, 36px);
+  background: rgba(2, 8, 20, 0.96);
+}
+
+.solat-overlay[hidden] {
+  display: none;
+}
+
+.solat-overlay-shell {
+  grid-template-rows: auto auto auto auto;
+  width: min(1200px, 100%);
+  min-height: 0;
+  margin: auto;
+  padding: 0;
+}
+
+.solat-overlay-actions {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.solat-overlay-close {
+  min-height: 42px;
+  padding: 8px 18px;
+  border: 1px solid rgba(151, 185, 218, 0.3);
+  border-radius: 999px;
+  color: #eff7ff;
+  background: #0c192a;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.solat-overlay .solat-hero {
+  min-height: 220px;
+}
+
+.solat-overlay .solat-hero h2 {
+  font-size: clamp(1.8rem, 4vw, 3.2rem);
+}
+
+.solat-overlay .solat-times-grid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.solat-overlay .solat-prayer-time {
+  min-width: 0;
 }
 
 .dashboard-shell {

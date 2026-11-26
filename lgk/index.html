@@ -125,6 +125,59 @@
         </footer>
       </div>
     </main>
+    <div id="solat-overlay" class="solat-overlay" hidden>
+      <section class="solat-shell solat-overlay-shell" role="dialog" aria-modal="true" aria-labelledby="solat-overlay-title">
+        <header class="solat-header">
+          <div>
+            <p class="solat-eyebrow">MRSM LANGKAWI</p>
+            <h1 id="solat-overlay-title">Jom Solat</h1>
+          </div>
+          <div class="solat-overlay-actions">
+            <time id="overlay-solat-clock" aria-label="Waktu semasa">--:--:--</time>
+            <button class="solat-overlay-close" type="button" aria-label="Tutup waktu solat">Kembali</button>
+          </div>
+        </header>
+
+        <section class="solat-hero">
+          <div>
+            <p class="solat-eyebrow">WAKTU SOLAT LANGKAWI</p>
+            <h2>Assalamualaikum</h2>
+            <p id="overlay-solat-date">Memuatkan tarikh…</p>
+            <p id="overlay-hijri-date" lang="ms">Memuatkan tarikh Hijrah…</p>
+          </div>
+          <div class="next-prayer-card">
+            <span>WAKTU SOLAT SETERUSNYA</span>
+            <strong id="overlay-next-prayer-name">--</strong>
+            <time id="overlay-next-prayer-countdown">--:--:--</time>
+          </div>
+        </section>
+
+        <section id="overlay-solat-event-banner" class="solat-event-banner" aria-live="polite" hidden>
+          <img id="overlay-solat-event-image" alt="" hidden />
+          <div>
+            <p class="solat-eyebrow">ACARA SEKOLAH</p>
+            <h2 id="overlay-solat-event-title"></h2>
+          </div>
+        </section>
+
+        <section class="solat-times-section" aria-label="Waktu solat hari ini">
+          <div class="solat-section-heading">
+            <div>
+              <p class="solat-eyebrow">JADUAL HARI INI</p>
+              <h2>Waktu solat</h2>
+            </div>
+            <p id="overlay-solat-status" role="status">Memuatkan jadual KDH06…</p>
+          </div>
+          <div class="solat-times-grid">
+            <div class="solat-prayer-time" data-overlay-prayer="fajr"><span>Subuh</span><time>--:--</time></div>
+            <div class="solat-prayer-time" data-overlay-prayer="dhuhr"><span>Zohor</span><time>--:--</time></div>
+            <div class="solat-prayer-time" data-overlay-prayer="asr"><span>Asar</span><time>--:--</time></div>
+            <div class="solat-prayer-time" data-overlay-prayer="maghrib"><span>Maghrib</span><time>--:--</time></div>
+            <div class="solat-prayer-time" data-overlay-prayer="isha"><span>Isyak</span><time>--:--</time></div>
+          </div>
+        </section>
+      </section>
+    </div>
     <script src="script.js"></script>
   </body>
 </html>
